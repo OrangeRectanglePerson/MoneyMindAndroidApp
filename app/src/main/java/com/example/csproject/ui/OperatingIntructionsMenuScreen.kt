@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.csproject.R
 import com.example.csproject.ui.theme.CSProjectTheme
 import com.example.csproject.ui.theme.MediumTurquoise
 
@@ -23,13 +24,9 @@ import com.example.csproject.ui.theme.MediumTurquoise
 fun OperatingInstructionsMenuScreen(
     _topBar : @Composable () -> Unit,
     gotoLoggingHelpButtonAction : () -> Unit,
-    LoggingHelpButtonIconId : Int,
     gotoCategorisationHelpButtonAction : () -> Unit,
-    CategorisationHelpButtonIconId : Int,
     gotoGraphingHelpButtonAction : () -> Unit,
-    GraphingHelpButtonIconId : Int,
     gotoSettingsButtonAction : () -> Unit,
-    SettingsButtonButtonIconId : Int,
     gotoStartScreenButtonAction : () -> Unit,
 ){
 
@@ -58,7 +55,7 @@ fun OperatingInstructionsMenuScreen(
 
                         helpOption(
                             optionText = "Logging Purchases",
-                            optionIconId = LoggingHelpButtonIconId,
+                            optionIconId = R.drawable.money_sign,
                             _onClick = gotoLoggingHelpButtonAction
                         )
 
@@ -66,7 +63,7 @@ fun OperatingInstructionsMenuScreen(
 
                         helpOption(
                             optionText = "Categorising Purchases",
-                            optionIconId = CategorisationHelpButtonIconId,
+                            optionIconId = R.drawable.categorisation_sign,
                             _onClick = gotoCategorisationHelpButtonAction
                         )
 
@@ -74,7 +71,7 @@ fun OperatingInstructionsMenuScreen(
 
                         helpOption(
                             optionText = "Graphing",
-                            optionIconId = GraphingHelpButtonIconId,
+                            optionIconId = R.drawable.graph_sign,
                             _onClick = gotoGraphingHelpButtonAction
                         )
 
@@ -82,7 +79,7 @@ fun OperatingInstructionsMenuScreen(
 
                         helpOption(
                             optionText = "Settings",
-                            optionIconId = SettingsButtonButtonIconId,
+                            optionIconId = R.drawable.ic_baseline_settings_50,
                             _onClick = gotoSettingsButtonAction
                         )
 

@@ -15,8 +15,9 @@ private val DarkColorPalette = darkColors(
 private val LightColorPalette = lightColors(
     primary = LibreOfficeBlue,
     primaryVariant = DarkLibreOfficeBlue,
-    secondary = Teal200,
-    background = LightCyan
+    secondary = MediumTurquoise,
+    secondaryVariant = DarkCyan,
+    background = LightCyan,
 
     /* Other default colors to override
 

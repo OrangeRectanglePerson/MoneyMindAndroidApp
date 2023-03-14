@@ -42,7 +42,7 @@ fun StartScreen(
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MediumTurquoise
+                    color = MaterialTheme.colors.secondary
                 ) {
                     Column(
                         modifier = Modifier
