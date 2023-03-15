@@ -102,7 +102,7 @@ fun StartScreen(
 fun createSnackbar(text: String, showDialog: MutableState<Boolean>){
     if(showDialog.value){
         Snackbar(
-            modifier = Modifier.padding(10.dp)
+            modifier = Modifier.padding(10.dp),
         ) {
             Column(
                 modifier = Modifier.wrapContentSize(Alignment.Center)
