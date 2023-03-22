@@ -1,15 +1,13 @@
 package com.example.csproject.ui.CommonUI
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,19 +19,29 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.ViewModels.TransactionLogViewModel
+import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionLog
+import com.example.csproject.data.TransactionLogsState
 import com.example.csproject.ui.theme.CSProjectTheme
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
 fun TransactionLogCard(
-    transaction : TransactionLog
+    transactionLogsState: TransactionLogsState,
+    transaction : TransactionLog,
+    transactionCategoriesState: TransactionCategoriesState
 ){
+
+    var showTransactionEditDialog by remember{ mutableStateOf(false) }
+
     CSProjectTheme() {
         Card (
             backgroundColor = Color.Transparent,
             elevation = 0.dp,
+            modifier = Modifier.clickable {
+                showTransactionEditDialog = true
+            }
         ){
             Column(
                 modifier = Modifier
@@ -77,6 +85,32 @@ fun TransactionLogCard(
                 )
             }
 
+
+            if(showTransactionEditDialog) {
+                EditTransactionDialog(
+                    transactionToEdit = transaction,
+                    transactionCategoriesState = transactionCategoriesState,
+                    onDismiss = { tName, tAmt, selectedCategories ->
+                        showTransactionEditDialog = false
+                    },
+                    onPositiveClick = { tName, tAmt, selectedCategories ->
+                        transaction.name = tName
+                        transaction.amount = tAmt
+                        transaction.categories.clear()
+                        for (i in selectedCategories) {
+                            transaction.categories.add(i)
+                        }
+                        showTransactionEditDialog = false
+                    },
+                    onNegativeClick = { tName, tAmt, selectedCategories ->
+
+                        transactionLogsState.transactions.remove(transaction)
+
+                        showTransactionEditDialog = false
+                    },
+                )
+            }
+
         }
 
     }
@@ -84,6 +118,7 @@ fun TransactionLogCard(
 
 }
 
+/*
 @Preview(showBackground = false)
 @Composable
 fun previewTLC(){
@@ -92,5 +127,7 @@ fun previewTLC(){
     dummyTransactionLog0.categories.add(TransactionCategoryViewModel.dummyCategory0)
     dummyTransactionLog0.categories.add(TransactionCategoryViewModel.dummyCategory0)
 
-    TransactionLogCard(transaction = dummyTransactionLog0)
+    TransactionLogCard(transaction = dummyTransactionLog0 )
 }
+
+ */

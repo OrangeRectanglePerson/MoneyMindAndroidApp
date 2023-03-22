@@ -67,7 +67,11 @@ fun GeneralTransactionViewScreen(
                     ) {
 
                         items(items = transactionLogsState.value.transactions){ transaction ->
-                            TransactionLogCard(transaction = transaction )
+                            TransactionLogCard(
+                                transaction = transaction ,
+                                transactionCategoriesState = transactionCategoryViewModel.uiState.collectAsState().value,
+                                transactionLogsState = transactionLogsState.collectAsState().value
+                            )
                             Spacer(modifier = Modifier.height(10.dp))
                         }
                     }

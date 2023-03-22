@@ -44,19 +44,19 @@ fun CategorySelectionDialog(
     CSProjectTheme() {
         Dialog(
             onDismissRequest = {selectedCategories},
+
         ) {
             Surface(
                 //shape = MaterialTheme.shapes.medium,
                 shape = RoundedCornerShape(10.dp),
                 // modifier = modifier.size(280.dp, 240.dp)
-                modifier = Modifier
-                    .padding(10.dp, 5.dp, 10.dp, 10.dp),
                 elevation = 8.dp,
                 color = DarkCyan
             ) {
                 LazyColumn(
                         Modifier
                             .background(Color.Transparent)
+                            .padding(10.dp, 10.dp, 10.dp, 10.dp),
                 ) {
 
                     item{

@@ -24,27 +24,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
+import com.example.csproject.ViewModels.TransactionLogViewModel
 import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionCategory
-import com.example.csproject.ui.theme.CSProjectTheme
-import com.example.csproject.ui.theme.DarkCyan
-import com.example.csproject.ui.theme.LibreOfficeBlue
-import com.example.csproject.ui.theme.LimeGreen
+import com.example.csproject.data.TransactionLog
+import com.example.csproject.ui.theme.*
+import java.util.Calendar
 
 @Composable
-fun LogTransactionDialog(
+fun EditTransactionDialog(
+    transactionToEdit : TransactionLog,
     transactionCategoriesState: TransactionCategoriesState,
     onDismiss: (tName : String, tAmt : Double, selectedCategories : ArrayList<TransactionCategory>) -> Unit,
-    onPositiveClick: (tName : String, tAmt : Double, selectedCategories : ArrayList<TransactionCategory>) -> Unit
+    onPositiveClick: (tName : String, tAmt : Double, selectedCategories : ArrayList<TransactionCategory>) -> Unit,
+    onNegativeClick: (tName : String, tAmt : Double, selectedCategories : ArrayList<TransactionCategory>) -> Unit,
 ){
-    var transactionName by rememberSaveable { mutableStateOf("My Transaction") }
-    var transactionAmountText by rememberSaveable { mutableStateOf("") }
-    var transactionAmount by rememberSaveable { mutableStateOf(0.0) }
-    var isValidDouble by rememberSaveable { mutableStateOf(false) }
+    var transactionName by rememberSaveable { mutableStateOf(transactionToEdit.name) }
+    var transactionAmount by rememberSaveable { mutableStateOf(transactionToEdit.amount) }
+    var transactionAmountText by rememberSaveable { mutableStateOf(transactionAmount.toString()) }
+    var isValidDouble by rememberSaveable { mutableStateOf(true) }
 
     var showNestedDialog by remember { mutableStateOf(false) }
 
     var selectedCategories : ArrayList<TransactionCategory> = ArrayList()
+    for(i in transactionToEdit.categories){
+        selectedCategories.add(i)
+    }
 
     CSProjectTheme() {
         Dialog(
@@ -61,6 +66,7 @@ fun LogTransactionDialog(
                     Modifier
                         .background(Color.Transparent)
                         .verticalScroll(enabled = true, state = rememberScrollState())
+
                 ) {
 
                     /*
@@ -86,7 +92,7 @@ fun LogTransactionDialog(
                         val focusManager = LocalFocusManager.current
 
                         Text(
-                            text = "New Transaction Log",
+                            text = "Edit Transaction Log",
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .padding(top = 5.dp)
@@ -96,7 +102,7 @@ fun LogTransactionDialog(
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "Log a new Transaction",
+                            text = "Edit a Transaction",
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .padding(5.dp)
@@ -168,7 +174,7 @@ fun LogTransactionDialog(
                                 .padding(5.dp),
                         ) {
                             Text(
-                                "Select Categories",
+                                "Edit Categories",
                                 style = MaterialTheme.typography.button,
                                 color = Color.Black,
                             )
@@ -232,7 +238,31 @@ fun LogTransactionDialog(
                             enabled = isValidDouble,
                         ) {
                             Text(
-                                "Log Transaction",
+                                "Edit Transaction",
+                                style = MaterialTheme.typography.button,
+                                color = Color.Black,
+                                modifier = Modifier
+                            )
+                        }
+                        TextButton(
+                            shape = RoundedCornerShape(10.dp),
+                            onClick = {
+                                if(isValidDouble) onNegativeClick(transactionName, transactionAmount, selectedCategories)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .background(color = FireBrick, shape = RoundedCornerShape(30))
+                                .border(
+                                    width = 2.dp,
+                                    color = MaterialTheme.colors.primaryVariant,
+                                    shape = RoundedCornerShape(30)
+                                )
+                                .padding(5.dp),
+                            enabled = isValidDouble,
+                        ) {
+                            Text(
+                                "Delete Transaction",
                                 style = MaterialTheme.typography.button,
                                 color = Color.Black,
                                 modifier = Modifier
@@ -247,12 +277,14 @@ fun LogTransactionDialog(
 
 @Preview(showBackground = false)
 @Composable
-fun previewLoggingDialog(){
+fun previewEditingDialog(){
     val TCVM : TransactionCategoryViewModel = viewModel()
     val TCS by remember { mutableStateOf(TCVM.uiState) }
-    LogTransactionDialog(
+    EditTransactionDialog(
+        transactionToEdit = TransactionLog("name", 20.23, Calendar.getInstance()),
         transactionCategoriesState = TCS.collectAsState().value,
         onDismiss = {_,_,_ -> },
-        onPositiveClick = {_,_,_ -> }
+        onPositiveClick = {_,_,_ -> },
+        onNegativeClick = {_,_,_ -> },
     )
 }
