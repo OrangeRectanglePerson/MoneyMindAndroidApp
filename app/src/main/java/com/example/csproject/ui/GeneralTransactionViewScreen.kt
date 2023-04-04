@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.example.csproject.R
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.ViewModels.TransactionLogViewModel
+import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionLog
 import com.example.csproject.ui.CommonUI.LogTransactionDialog
 import com.example.csproject.ui.CommonUI.TransactionLogCard
@@ -103,6 +104,7 @@ fun GeneralTransactionViewScreen(
         }
     )
 }
+
 
 
 

@@ -30,6 +30,7 @@ import com.example.csproject.ViewModels.TransactionLogViewModel
 import com.example.csproject.data.TransactionCategory
 import com.example.csproject.data.TransactionLog
 import com.example.csproject.data.TransactionLogsState
+import com.example.csproject.ui.CommonUI.AddCategoryDialog
 import com.example.csproject.ui.CommonUI.LogTransactionDialog
 import com.example.csproject.ui.CommonUI.TransactionLogCard
 import com.example.csproject.ui.theme.CSProjectTheme
@@ -50,6 +51,7 @@ fun CategoriesScreen(
     val transactionLogsState by remember{ mutableStateOf(transactionsLogViewModel.uiState) }
     val transactionCategoriesState by remember{ mutableStateOf(transactionCategoryViewModel.uiState) }
     var showTransactionCreationDialog by remember{ mutableStateOf(false) }
+    var showCategoryCreationDialog by remember { mutableStateOf(false) }
 
 
     Scaffold(
@@ -86,7 +88,7 @@ fun CategoriesScreen(
                     ) {
                         item {
                             TextButton(
-                                onClick = { },
+                                onClick = { showCategoryCreationDialog = true },
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .background(
@@ -141,6 +143,21 @@ fun CategoriesScreen(
                         }
                     )
                 }
+
+                //create Category dialog
+                if(showCategoryCreationDialog){
+                    AddCategoryDialog(
+                        onDismiss = {name, color ->
+                            showCategoryCreationDialog = false
+                        },
+                        onPositiveClick = {name, color ->
+                            transactionCategoriesState.value.categories.add(
+                                TransactionCategory(name, color)
+                            )
+                            showCategoryCreationDialog = false
+                        }
+                    )
+                }
             }
         }
     )
@@ -172,11 +189,6 @@ fun TransactionCategoryCard(
                         color = MaterialTheme.colors.secondary,
                         shape = RoundedCornerShape(20)
                     )
-                    //.border(
-                    //    width = 3.dp,
-                    //    color = MaterialTheme.colors.secondaryVariant,
-                    //    shape = RoundedCornerShape(30)
-                    //)
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.Center)
                     .padding(10.dp),
