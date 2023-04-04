@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
@@ -27,16 +28,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.csproject.R
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.ViewModels.TransactionLogViewModel
+import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionCategory
 import com.example.csproject.data.TransactionLog
 import com.example.csproject.data.TransactionLogsState
-import com.example.csproject.ui.CommonUI.AddCategoryDialog
-import com.example.csproject.ui.CommonUI.LogTransactionDialog
-import com.example.csproject.ui.CommonUI.TransactionLogCard
-import com.example.csproject.ui.theme.CSProjectTheme
-import com.example.csproject.ui.theme.DarkCyan
-import com.example.csproject.ui.theme.FireBrick
-import com.example.csproject.ui.theme.SpringGreen
+import com.example.csproject.ui.CommonUI.*
+import com.example.csproject.ui.theme.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -113,7 +110,11 @@ fun CategoriesScreen(
 
 
                         items(items = transactionCategoriesState.value.categories){ category ->
-                            TransactionCategoryCard(category = category, transactionsLogsState = transactionLogsState.collectAsState().value)
+                            TransactionCategoryCard(
+                                category = category,
+                                transactionsLogsState = transactionLogsState.collectAsState().value,
+                                transactionsCategoriesState = transactionCategoriesState.collectAsState().value
+                            )
                             Spacer(modifier = Modifier.height(10.dp))
                         }
 
@@ -167,7 +168,8 @@ fun CategoriesScreen(
 @Composable
 fun TransactionCategoryCard(
     category: TransactionCategory,
-    transactionsLogsState: TransactionLogsState
+    transactionsLogsState: TransactionLogsState,
+    transactionsCategoriesState: TransactionCategoriesState,
 ){
     val context = LocalContext.current
     var numTransactionWithCategory = 0
@@ -175,12 +177,16 @@ fun TransactionCategoryCard(
         if(r.categories.contains(category)) numTransactionWithCategory++
     }
 
+    var showCategoryEditDialog by remember { mutableStateOf(false) }
+    var showDeleteCategoryAlertDialog by remember { mutableStateOf(false) }
+
     CSProjectTheme {
         Card (
             backgroundColor = Color.Transparent,
             elevation = 0.dp,
             modifier = Modifier.clickable {
-                Toast.makeText(context, String.format("Card for category \"%s\"", category.name), Toast.LENGTH_SHORT).show()
+                //Toast.makeText(context, String.format("Card for category \"%s\"", category.name), Toast.LENGTH_SHORT).show()
+                showCategoryEditDialog = true
             },
         ){
             Column(
@@ -211,9 +217,107 @@ fun TransactionCategoryCard(
 
         }
 
+        if(showCategoryEditDialog){
+            EditCategoryDialog(
+                categoryToEdit = category,
+                onDismiss = {_,_ ->
+                    showCategoryEditDialog = false
+                },
+                onPositiveClick = {newCategoryName, newCategoryColor ->
+                    category.name = newCategoryName
+                    category.color = newCategoryColor
+
+                    showCategoryEditDialog = false
+                },
+                onNegativeClick = {_,_ ->
+                    showDeleteCategoryAlertDialog = true
+                }
+            )
+        }
+
+        if(showDeleteCategoryAlertDialog){
+            AlertDialog(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp),
+                shape = RoundedCornerShape(5.dp),
+                backgroundColor = DarkCyan.copy(alpha = 0.9f),
+                onDismissRequest = {
+                    // Dismiss the dialog when the user clicks outside the dialog or on the back button.
+                    // If you want to disable that functionality, simply leave this block empty.
+                    showDeleteCategoryAlertDialog = false
+                },
+                title = {
+                    Text(
+                        text = "Confirm Deletion",
+                        style = MaterialTheme.typography.h3,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .fillMaxWidth(),
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Are you sure you want to delete \"${category.name}\"?",
+                        style = MaterialTheme.typography.body1,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .fillMaxWidth(),
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            // perform the confirm action and
+                            // close the dialog
+
+                            //first remove category from all transactions
+                            for(r in transactionsLogsState.transactions){
+                                if(r.categories.contains(category)) r.categories.remove(category)
+                            }
+
+                            //then remove category from array of categories
+                            transactionsCategoriesState.categories.remove(category)
+
+                            //close both dialogs
+                            showCategoryEditDialog = false
+                            showDeleteCategoryAlertDialog = false
+                        },
+                        modifier = Modifier
+                            .background(color = FireBrick, shape = RoundedCornerShape(30))
+                            .border(
+                                width = 2.dp,
+                                color = MaterialTheme.colors.primaryVariant,
+                                shape = RoundedCornerShape(30)
+                            )
+                            .padding(5.dp),
+                    ) {
+                        Text(text = "Confirm")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            // close the dialog
+                            showDeleteCategoryAlertDialog = false
+                        },
+                        modifier = Modifier
+                            .background(color = LibreOfficeBlue, shape = RoundedCornerShape(30))
+                            .border(
+                                width = 2.dp,
+                                color = MaterialTheme.colors.primaryVariant,
+                                shape = RoundedCornerShape(30)
+                            )
+                            .padding(5.dp),
+                    ) {
+                        Text(text = "Dismiss")
+                    }
+                },
+            )
+        }
     }
-
-
 }
 
 @Preview(showBackground = false)
@@ -222,7 +326,7 @@ fun previewTCC(){
     val TLVM : TransactionLogViewModel = viewModel()
     val transactionLogsState by remember{ mutableStateOf(TLVM.uiState) }
     val TCVM : TransactionCategoryViewModel = viewModel()
-    val transactionCategoriesState by remember{ mutableStateOf(TLVM.uiState) }
+    val transactionCategoriesState by remember{ mutableStateOf(TCVM.uiState) }
 
     val dummyCategory = TransactionCategory("Category", FireBrick)
 
@@ -234,7 +338,7 @@ fun previewTCC(){
 
     TLVM.addCategoryToTransaction(dummyTransaction, dummyCategory)
 
-    TransactionCategoryCard(category = dummyCategory, transactionsLogsState = transactionLogsState.collectAsState().value)
+    TransactionCategoryCard(category = dummyCategory, transactionsLogsState = transactionLogsState.collectAsState().value, transactionCategoriesState.collectAsState().value)
 
 
 }
