@@ -33,7 +33,8 @@ enum class AppScreen(val title: String) {
     TransactionLogsScreen(title = "Transaction List 2"),
     OperatingInstructionsMenu(title = "Help"),
     OperatingInstructions(title = "Operating Instructions"),
-    CategoriesScreen(title = "Categories List")
+    CategoriesScreen(title = "Categories List"),
+    GraphingScreen(title = "Transaction Graphs"),
 }
 
 @Composable
@@ -220,7 +221,7 @@ fun MainApp(
                                     Spacer(modifier = Modifier.height(5.dp))
 
                                     TextButton(
-                                        onClick = { },
+                                        onClick = { navController.navigate(AppScreen.GraphingScreen.name) },
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .background(
@@ -305,6 +306,24 @@ fun MainApp(
                     },
                     transactionsLogViewModel = transactionLogsViewModel,
                     transactionCategoryViewModel = transactionCategoriesViewModel
+                )
+            }
+            composable(route = AppScreen.GraphingScreen.name) {
+                GraphsScreen(
+                    _topBar = {
+                        CustomAppBar(
+                            backClick = {
+                                if (navController.previousBackStackEntry != null) {
+                                    navController.navigateUp()
+                                } else {
+                                    navController.navigate(AppScreen.GeneralTransactionView.name)
+                                }
+                            },
+                            ellipsesClick = {}
+                        )
+                    },
+                    transactionsLogViewModel = transactionLogsViewModel,
+                    transactionCategoryViewModel = transactionCategoriesViewModel,
                 )
             }
             composable(route = AppScreen.OperatingInstructionsMenu.name){
