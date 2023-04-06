@@ -1,5 +1,6 @@
 package com.example.csproject
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -23,7 +24,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.csproject.ViewModels.HelpScreenViewModel
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.ViewModels.TransactionLogViewModel
+import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.ui.*
+import com.example.csproject.ui.Extras.getSerializable
 import com.example.csproject.ui.theme.CSProjectTheme
 import com.example.csproject.ui.theme.DarkLibreOfficeBlue
 
@@ -162,7 +165,14 @@ fun MainApp(
     val currentScreen = AppScreen.valueOf(
         backStackEntry?.destination?.route ?: AppScreen.Onboarding.name
     )
+    val transactionCategoriesState by remember { mutableStateOf(transactionCategoriesViewModel.uiState) }
     val context = LocalContext.current
+
+
+    transactionCategoriesViewModel.changeTransactionCategoriesState(
+        context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE)
+            .getSerializable("categoriesJSON", TransactionCategoriesState::class.java)
+    )
 
     Scaffold { innerPadding ->
         val helpScreenState by helpScreenViewModel.uiState.collectAsState()
@@ -390,7 +400,10 @@ fun MainApp(
                                     navController.navigate(AppScreen.GeneralTransactionView.name)
                                 }
                             },
-                            ellipsesClick = {}
+                            ellipsesClick = {
+
+
+                            }
                         )
                     },
                     _gotoCategoriesScreen = {navController.navigate(AppScreen.CategoriesScreen.name)},

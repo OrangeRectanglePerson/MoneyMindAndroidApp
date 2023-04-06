@@ -1,13 +1,12 @@
 package com.example.csproject.ui
 
-import android.widget.Toast
+
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -15,12 +14,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,10 +26,11 @@ import com.example.csproject.ViewModels.TransactionLogViewModel
 import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionCategory
 import com.example.csproject.data.TransactionLog
-import com.example.csproject.data.TransactionLogsState
-import com.example.csproject.ui.CommonUI.*
+import com.example.csproject.ui.CommonUI.AddCategoryDialog
+import com.example.csproject.ui.CommonUI.EditCategoryDialog
+import com.example.csproject.ui.CommonUI.LogTransactionDialog
+import com.example.csproject.ui.Extras.putSerializable
 import com.example.csproject.ui.theme.*
-import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
@@ -105,6 +101,35 @@ fun CategoriesScreen(
                                 )
                             }
 
+                            //TextButton(
+                            //    onClick = {
+                            //        //val items = Json.decodeFromString(
+                            //        //    TransactionCategoriesStateSerializer,
+                            //        //    context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE)
+                            //        //        .getString("categoriesJSON","")!!
+                            //        //)
+
+
+                            //    },
+                            //    modifier = Modifier
+                            //        .fillMaxWidth()
+                            //        .background(
+                            //            color = MaterialTheme.colors.primary,
+                            //            shape = RoundedCornerShape(30)
+                            //        )
+                            //        .border(
+                            //            width = 3.dp,
+                            //            color = MaterialTheme.colors.primaryVariant,
+                            //            shape = RoundedCornerShape(30)
+                            //        ),
+                            //) {
+                            //    Text(
+                            //        "SHAREDPREFERENCES",
+                            //        style = MaterialTheme.typography.button,
+                            //        textAlign = TextAlign.Center
+                            //    )
+                            //}
+
                             Spacer(modifier = Modifier.height(10.dp))
                         }
 
@@ -112,7 +137,7 @@ fun CategoriesScreen(
                         items(items = transactionCategoriesState.value.categories){ category ->
                             TransactionCategoryCard(
                                 category = category,
-                                transactionsLogsState = transactionLogsState.collectAsState().value,
+                                transactionsLogsViewModel = transactionsLogViewModel,
                                 transactionsCategoriesState = transactionCategoriesState.collectAsState().value
                             )
                             Spacer(modifier = Modifier.height(10.dp))
@@ -148,6 +173,7 @@ fun CategoriesScreen(
                 //create Category dialog
                 if(showCategoryCreationDialog){
                     AddCategoryDialog(
+                        transactionCategoriesState = transactionCategoriesState.collectAsState().value,
                         onDismiss = {name, color ->
                             showCategoryCreationDialog = false
                         },
@@ -155,6 +181,24 @@ fun CategoriesScreen(
                             transactionCategoriesState.value.categories.add(
                                 TransactionCategory(name, color)
                             )
+                            //
+
+
+                            //context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                            //    .putString(
+                            //        "categoriesJSON",
+                            //        Json.encodeToString(TransactionCategoriesStateSerializer,transactionCategoriesState.value)
+                            //    ).apply()
+
+                            context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                                .putSerializable(
+                                    "categoriesJSON",
+                                    transactionCategoriesState.value
+                                ).apply()
+
+                            //Log.d("json1", context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).getString(s))
+                            //Log.d("json2", Json.encodeToString(TransactionCategoriesStateSerializer,transactionCategoriesState.value))
+
                             showCategoryCreationDialog = false
                         }
                     )
@@ -168,12 +212,12 @@ fun CategoriesScreen(
 @Composable
 fun TransactionCategoryCard(
     category: TransactionCategory,
-    transactionsLogsState: TransactionLogsState,
+    transactionsLogsViewModel: TransactionLogViewModel,
     transactionsCategoriesState: TransactionCategoriesState,
 ){
     val context = LocalContext.current
     var numTransactionWithCategory = 0
-    for(r in transactionsLogsState.transactions){
+    for(r in transactionsLogsViewModel.uiState.collectAsState().value.transactions){
         if(r.categories.contains(category)) numTransactionWithCategory++
     }
 
@@ -220,12 +264,20 @@ fun TransactionCategoryCard(
         if(showCategoryEditDialog){
             EditCategoryDialog(
                 categoryToEdit = category,
+                transactionCategoriesState = transactionsCategoriesState,
                 onDismiss = {_,_ ->
                     showCategoryEditDialog = false
                 },
                 onPositiveClick = {newCategoryName, newCategoryColor ->
                     category.name = newCategoryName
                     category.color = newCategoryColor
+
+                    //save changes
+                    context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                        .putSerializable(
+                            "categoriesJSON",
+                            transactionsCategoriesState
+                        ).apply()
 
                     showCategoryEditDialog = false
                 },
@@ -274,12 +326,20 @@ fun TransactionCategoryCard(
                             // close the dialog
 
                             //first remove category from all transactions
-                            for(r in transactionsLogsState.transactions){
-                                if(r.categories.contains(category)) r.categories.remove(category)
+                            for (t in transactionsLogsViewModel.uiState.value.transactions){
+                                transactionsLogsViewModel.removeCategoryFromTransaction(t, category)
                             }
+
 
                             //then remove category from array of categories
                             transactionsCategoriesState.categories.remove(category)
+
+                            //save changes
+                            context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                                .putSerializable(
+                                    "categoriesJSON",
+                                    transactionsCategoriesState
+                                ).apply()
 
                             //close both dialogs
                             showCategoryEditDialog = false
@@ -338,7 +398,7 @@ fun previewTCC(){
 
     TLVM.addCategoryToTransaction(dummyTransaction, dummyCategory)
 
-    TransactionCategoryCard(category = dummyCategory, transactionsLogsState = transactionLogsState.collectAsState().value, transactionCategoriesState.collectAsState().value)
+    TransactionCategoryCard(category = dummyCategory, transactionsLogsViewModel = TLVM, transactionCategoriesState.collectAsState().value)
 
 
 }

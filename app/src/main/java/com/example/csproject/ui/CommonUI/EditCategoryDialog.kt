@@ -22,12 +22,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionCategory
 import com.example.csproject.ui.theme.*
 
 @Composable
 fun EditCategoryDialog(
     categoryToEdit : TransactionCategory,
+    transactionCategoriesState : TransactionCategoriesState,
     onDismiss: (tName : String, tAmt : Color) -> Unit,
     onPositiveClick: (tName : String, tAmt : Color) -> Unit,
     onNegativeClick: (tName : String, tAmt : Color) -> Unit
@@ -35,7 +37,7 @@ fun EditCategoryDialog(
     var categoryName by rememberSaveable { mutableStateOf(categoryToEdit.name) }
     var categoryColor by rememberSaveable { mutableStateOf(categoryToEdit.color.toArgb()) }
 
-    var showNestedDialog by remember { mutableStateOf(false) }
+    var isCategoryNameTaken by remember { mutableStateOf(false) }
 
 
     CSProjectTheme() {
@@ -102,6 +104,11 @@ fun EditCategoryDialog(
                             value = categoryName,
                             onValueChange = {
                                 categoryName = it
+
+                                isCategoryNameTaken = false
+                                for(c in transactionCategoriesState.categories){
+                                    if(c != categoryToEdit && c.name == it) isCategoryNameTaken = true
+                                }
                             },
                             label = {
                                 Text(
@@ -117,6 +124,17 @@ fun EditCategoryDialog(
                                 color = Color(categoryColor)
                             )
                         )
+
+                        if(isCategoryNameTaken) {
+                            Text(
+                                text = "This Category Name Is Taken",
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                style = MaterialTheme.typography.caption,
+                                color = Color(122, 0, 25)
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(5.dp))
 
@@ -153,6 +171,7 @@ fun EditCategoryDialog(
                                     shape = RoundedCornerShape(30)
                                 )
                                 .padding(5.dp),
+                            enabled = !isCategoryNameTaken
                         ) {
                             Text(
                                 "Edit Category",

@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.csproject.ui.theme.CSProjectTheme
-import com.example.csproject.ui.theme.MediumTurquoise
 
 
 @Composable

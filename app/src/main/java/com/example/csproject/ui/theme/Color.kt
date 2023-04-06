@@ -1,7 +1,6 @@
 package com.example.csproject.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import java.util.Locale.Category
 
 val Purple200 = Color(0xFFBB86FC)
 val Purple500 = Color(0xFF6200EE)

@@ -1,16 +1,17 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
 android {
     namespace 'com.example.csproject'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.csproject"
         minSdk 27
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -37,7 +38,7 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion '1.1.1'
+        kotlinCompilerExtensionVersion '1.4.1'
     }
     packagingOptions {
         resources {
@@ -63,4 +64,7 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
     implementation 'io.github.bytebeats:compose-charts:0.1.2'
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0'
+    implementation 'com.google.code.gson:gson:2.10.1'
 }

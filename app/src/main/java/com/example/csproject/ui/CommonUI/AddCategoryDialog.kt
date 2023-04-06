@@ -25,17 +25,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
+import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.ui.theme.*
 
 @Composable
 fun AddCategoryDialog(
+    transactionCategoriesState : TransactionCategoriesState,
     onDismiss: (tName : String, tAmt : Color) -> Unit,
     onPositiveClick: (tName : String, tAmt : Color) -> Unit
 ){
     var categoryName by rememberSaveable { mutableStateOf("My Category") }
     var categoryColor by rememberSaveable { mutableStateOf(0 or (0xff) shl 24) }
 
-    var showNestedDialog by remember { mutableStateOf(false) }
+    var isCategoryNameTaken by remember { mutableStateOf(false) }
+    for(c in transactionCategoriesState.categories){
+        if(c.name == categoryName) isCategoryNameTaken = true
+    }
 
 
     CSProjectTheme() {
@@ -102,6 +107,11 @@ fun AddCategoryDialog(
                             value = categoryName,
                             onValueChange = {
                                 categoryName = it
+
+                                isCategoryNameTaken = false
+                                for(c in transactionCategoriesState.categories){
+                                    if(c.name == it) isCategoryNameTaken = true
+                                }
                             },
                             label = {
                                 Text(
@@ -117,6 +127,17 @@ fun AddCategoryDialog(
                                 color = Color(categoryColor)
                             )
                         )
+
+                        if(isCategoryNameTaken) {
+                            Text(
+                                text = "This Category Name Is Taken",
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                style = MaterialTheme.typography.caption,
+                                color = Color(122, 0, 25)
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(5.dp))
 
@@ -139,6 +160,30 @@ fun AddCategoryDialog(
                         verticalArrangement = Arrangement.SpaceAround
                     ) {
                         TextButton(
+                            shape = RoundedCornerShape(10.dp),
+                            onClick = {
+                                onPositiveClick(categoryName, Color(categoryColor))
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .background(color = LimeGreen, shape = RoundedCornerShape(30))
+                                .border(
+                                    width = 2.dp,
+                                    color = MaterialTheme.colors.primaryVariant,
+                                    shape = RoundedCornerShape(30)
+                                )
+                                .padding(5.dp),
+                            enabled = !isCategoryNameTaken
+                        ) {
+                            Text(
+                                "Add Category",
+                                style = MaterialTheme.typography.button,
+                                color = Color.Black,
+                                modifier = Modifier
+                            )
+                        }
+                        TextButton(
                             onClick = { onDismiss(categoryName, Color(categoryColor)) },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -157,29 +202,6 @@ fun AddCategoryDialog(
                                 color = Color.Black,
                             )
                         }
-                        TextButton(
-                            shape = RoundedCornerShape(10.dp),
-                            onClick = {
-                                onPositiveClick(categoryName, Color(categoryColor))
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.CenterHorizontally)
-                                .background(color = LimeGreen, shape = RoundedCornerShape(30))
-                                .border(
-                                    width = 2.dp,
-                                    color = MaterialTheme.colors.primaryVariant,
-                                    shape = RoundedCornerShape(30)
-                                )
-                                .padding(5.dp),
-                        ) {
-                            Text(
-                                "Add Category",
-                                style = MaterialTheme.typography.button,
-                                color = Color.Black,
-                                modifier = Modifier
-                            )
-                        }
                     }
                 }
             }
@@ -193,6 +215,7 @@ fun previewAddCategoryDialog(){
     val TCVM : TransactionCategoryViewModel = viewModel()
     val TCS by remember { mutableStateOf(TCVM.uiState) }
     AddCategoryDialog(
+        TCS.collectAsState().value,
         onDismiss = {_,_ -> },
         onPositiveClick = {_,_ -> }
     )

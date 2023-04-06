@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.util.*
 
-class TransactionLogViewModel : ViewModel()  {
+class TransactionLogViewModel() : ViewModel()  {
 
     private val _uiState = MutableStateFlow(TransactionLogsState())
     val uiState: StateFlow<TransactionLogsState> = _uiState.asStateFlow()
@@ -87,5 +87,11 @@ class TransactionLogViewModel : ViewModel()  {
             currentState.copy()
         }
     }
+
+    fun saveTransactions() {
+        //val transactionsJSON = Json.encodeToString(uiState.value.transactions)
+
+    }
+
 
 }

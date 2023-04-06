@@ -14,11 +14,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.csproject.ViewModels.TransactionCategoryViewModel
-import com.example.csproject.ViewModels.TransactionLogViewModel
 import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionLog
 import com.example.csproject.data.TransactionLogsState
