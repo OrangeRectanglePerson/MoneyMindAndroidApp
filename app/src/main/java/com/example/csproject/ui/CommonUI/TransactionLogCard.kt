@@ -1,5 +1,6 @@
 package com.example.csproject.ui.CommonUI
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -18,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionLog
 import com.example.csproject.data.TransactionLogsState
+import com.example.csproject.ui.Extras.putSerializable
 import com.example.csproject.ui.theme.CSProjectTheme
 import com.example.csproject.ui.theme.DarkCyan
 import com.example.csproject.ui.theme.FireBrick
@@ -34,6 +37,8 @@ fun TransactionLogCard(
 
     var showTransactionEditDialog by remember{ mutableStateOf(false) }
     var showDeleteTransactionAlertDialog by remember{ mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     CSProjectTheme() {
         Card (
@@ -100,6 +105,14 @@ fun TransactionLogCard(
                         for (i in selectedCategories) {
                             transaction.categories.add(i)
                         }
+
+                        //save changes
+                        context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                            .putSerializable(
+                                "transactionsJSON",
+                                transactionLogsState
+                            ).apply()
+
                         showTransactionEditDialog = false
                     },
                     onNegativeClick = { tName, tAmt, selectedCategories ->
@@ -121,6 +134,14 @@ fun TransactionLogCard(
                     onConfirm = {
                         //actually delete the transaction
                         transactionLogsState.transactions.remove(transaction)
+
+                        //save changes
+                        context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                            .putSerializable(
+                                "transactionsJSON",
+                                transactionLogsState
+                            ).apply()
+
                         //close both edit and alert dialogs after deleting the transaction
                         showTransactionEditDialog = false
                         showDeleteTransactionAlertDialog = false

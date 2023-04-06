@@ -1,5 +1,6 @@
 package com.example.csproject.ViewModels
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.csproject.data.TransactionCategory
 import com.example.csproject.data.TransactionLog
@@ -15,13 +16,17 @@ class TransactionLogViewModel() : ViewModel()  {
     private val _uiState = MutableStateFlow(TransactionLogsState())
     val uiState: StateFlow<TransactionLogsState> = _uiState.asStateFlow()
 
+    private val dummyTransactionLog0 : TransactionLog = TransactionLog("Dummy Transaction 0", 1.00, Calendar.getInstance())
+    private val dummyTransactionLog1 : TransactionLog = TransactionLog("Dummy Transaction 1", 10.00, Calendar.getInstance())
+    private val dummyTransactionLog2 : TransactionLog = TransactionLog("Dummy Transaction 2", 100.00, Calendar.getInstance())
+
     init {
-        val dummyTransactionLog0 : TransactionLog = TransactionLog("Dummy Transaction 0", 1.00, Calendar.getInstance())
+
         dummyTransactionLog0.categories.add(TransactionCategoryViewModel.dummyCategory0)
-        val dummyTransactionLog1 : TransactionLog = TransactionLog("Dummy Transaction 1", 10.00, Calendar.getInstance())
+
         dummyTransactionLog1.categories.add(TransactionCategoryViewModel.dummyCategory0)
         dummyTransactionLog1.categories.add(TransactionCategoryViewModel.dummyCategory1)
-        val dummyTransactionLog2 : TransactionLog = TransactionLog("Dummy Transaction 2", 100.00, Calendar.getInstance())
+
         dummyTransactionLog2.categories.add(TransactionCategoryViewModel.dummyCategory0)
         dummyTransactionLog2.categories.add(TransactionCategoryViewModel.dummyCategory1)
         dummyTransactionLog2.categories.add(TransactionCategoryViewModel.dummyCategory2)
@@ -88,9 +93,10 @@ class TransactionLogViewModel() : ViewModel()  {
         }
     }
 
-    fun saveTransactions() {
-        //val transactionsJSON = Json.encodeToString(uiState.value.transactions)
-
+    fun changeTransactionLogsState(newTLS : TransactionLogsState?){
+        _uiState.update {
+            newTLS ?: it.copy(transactions = mutableStateListOf(dummyTransactionLog0, dummyTransactionLog1, dummyTransactionLog2))
+        }
     }
 
 

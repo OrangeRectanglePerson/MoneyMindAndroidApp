@@ -1,6 +1,6 @@
 package com.example.csproject.ui
 
-import android.widget.Toast
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -25,6 +24,7 @@ import com.example.csproject.ViewModels.TransactionLogViewModel
 import com.example.csproject.data.TransactionLog
 import com.example.csproject.ui.CommonUI.LogTransactionDialog
 import com.example.csproject.ui.CommonUI.TransactionLogCard
+import com.example.csproject.ui.Extras.putSerializable
 import com.example.csproject.ui.theme.CSProjectTheme
 import com.example.csproject.ui.theme.DarkCyan
 import com.example.csproject.ui.theme.SpringGreen
@@ -181,6 +181,14 @@ fun TransactionLogsScreen(
                             transactionsLogViewModel.addTransaction(
                                 newTransactionLog
                             )
+
+                            //save changes
+                            context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                                .putSerializable(
+                                    "transactionsJSON",
+                                    transactionLogsState.value
+                                ).apply()
+
                             showTransactionCreationDialog = false
                         }
                     )

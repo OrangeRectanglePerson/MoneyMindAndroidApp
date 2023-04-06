@@ -1,5 +1,6 @@
 package com.example.csproject.ui
 
+import android.content.Context
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,6 +17,7 @@ import com.example.csproject.ViewModels.TransactionLogViewModel
 import com.example.csproject.data.TransactionLog
 import com.example.csproject.ui.CommonUI.LogTransactionDialog
 import com.example.csproject.ui.CommonUI.TransactionLogCard
+import com.example.csproject.ui.Extras.putSerializable
 import com.example.csproject.ui.theme.CSProjectTheme
 import com.example.csproject.ui.theme.DarkCyan
 import com.example.csproject.ui.theme.SpringGreen
@@ -95,6 +97,14 @@ fun GeneralTransactionViewScreen(
                             transactionsLogViewModel.addTransaction(
                                 newTransactionLog
                             )
+
+                            //save changes
+                            context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                                .putSerializable(
+                                    "transactionsJSON",
+                                    transactionLogsState.value
+                                ).apply()
+
                             showTransactionCreationDialog = false
                         }
                     )

@@ -6,15 +6,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -112,7 +109,7 @@ fun GraphsScreen(
 
 
                             var graphTitle : String
-                            when (graphScreenState.value.unitType){
+                            when (graphScreenState.collectAsState().value.unitType){
                                 GraphScreenViewModel.PERCENTAGE_OF_NUMBER -> graphTitle = "Percentages of how many transactions are in each category"
                                 GraphScreenViewModel.PERCENTAGE_OF_MONEY-> graphTitle = "Percentages of how much money is logged under each category"
                                 GraphScreenViewModel.AMOUNT_OF_MONEY -> graphTitle = "Amount of how much money is logged under each category"

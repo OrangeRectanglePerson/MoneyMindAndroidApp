@@ -24,12 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
-import com.example.csproject.ViewModels.TransactionLogViewModel
 import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionCategory
 import com.example.csproject.data.TransactionLog
 import com.example.csproject.ui.theme.*
-import java.util.Calendar
+import java.util.*
 
 @Composable
 fun EditTransactionDialog(

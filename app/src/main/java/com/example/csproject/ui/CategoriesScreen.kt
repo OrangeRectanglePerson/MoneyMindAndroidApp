@@ -165,6 +165,14 @@ fun CategoriesScreen(
                             transactionsLogViewModel.addTransaction(
                                 newTransactionLog
                             )
+
+                            //save changes
+                            context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                                .putSerializable(
+                                    "transactionsJSON",
+                                    transactionLogsState.value
+                                ).apply()
+
                             showTransactionCreationDialog = false
                         }
                     )

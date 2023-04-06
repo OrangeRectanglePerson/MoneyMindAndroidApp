@@ -25,6 +25,7 @@ import com.example.csproject.ViewModels.HelpScreenViewModel
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.ViewModels.TransactionLogViewModel
 import com.example.csproject.data.TransactionCategoriesState
+import com.example.csproject.data.TransactionLogsState
 import com.example.csproject.ui.*
 import com.example.csproject.ui.Extras.getSerializable
 import com.example.csproject.ui.theme.CSProjectTheme
@@ -172,6 +173,11 @@ fun MainApp(
     transactionCategoriesViewModel.changeTransactionCategoriesState(
         context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE)
             .getSerializable("categoriesJSON", TransactionCategoriesState::class.java)
+    )
+
+    transactionLogsViewModel.changeTransactionLogsState(
+        context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE)
+            .getSerializable("transactionsJSON", TransactionLogsState::class.java)
     )
 
     Scaffold { innerPadding ->
