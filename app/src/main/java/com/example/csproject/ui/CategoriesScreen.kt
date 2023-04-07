@@ -2,6 +2,7 @@ package com.example.csproject.ui
 
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -277,14 +278,37 @@ fun TransactionCategoryCard(
                     showCategoryEditDialog = false
                 },
                 onPositiveClick = {newCategoryName, newCategoryColor ->
+
+                    val oldCategoryName = category.name
+
                     category.name = newCategoryName
                     category.color = newCategoryColor
+
+                    for(t in transactionsLogsViewModel.getTransactions()){
+                        var indexOfCategory = -1
+                        for(c in t.categories){
+                            Log.d(t.name, "${c.name} vs ${oldCategoryName}")
+                            if(c.name == oldCategoryName){
+                                indexOfCategory = t.categories.indexOf(c)
+                            }
+                        }
+                        if(indexOfCategory >= 0) {
+                            t.categories[indexOfCategory] = category
+                        }
+                    }
 
                     //save changes
                     context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
                         .putSerializable(
                             "categoriesJSON",
                             transactionsCategoriesState
+                        ).apply()
+
+                    //save changes
+                    context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                        .putSerializable(
+                            "transactionsJSON",
+                            transactionsLogsViewModel.uiState.value
                         ).apply()
 
                     showCategoryEditDialog = false
@@ -351,6 +375,13 @@ fun TransactionCategoryCard(
                                 .putSerializable(
                                     "categoriesJSON",
                                     transactionsCategoriesState
+                                ).apply()
+
+                            //save changes
+                            context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                                .putSerializable(
+                                    "transactionsJSON",
+                                    transactionsLogsViewModel.uiState.value
                                 ).apply()
 
                             //close both dialogs

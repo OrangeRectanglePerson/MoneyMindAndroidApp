@@ -45,6 +45,10 @@ class TransactionLogViewModel() : ViewModel()  {
         return null
     }
 
+    fun getTransactions() : List<TransactionLog>{
+        return _uiState.value.transactions
+    }
+
     fun addTransaction(transaction: TransactionLog) : Boolean{
         return if(getTransaction(transaction.name) == null) {
             _uiState.update { currentState ->
