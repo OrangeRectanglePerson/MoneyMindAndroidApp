@@ -2,6 +2,7 @@ package com.example.csproject.ui.CommonUI
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -79,10 +80,17 @@ fun CategorySelectionDialog(
                     }
 
                     items(items = transactionCategoriesToChooseFrom.categories){ category ->
-                        Row(
+                        var selected by remember { mutableStateOf(selectedCategories.contains(category)) }
 
+                        Row(
+                            Modifier.clickable { if (!selected && !selectedCategories.contains(category)){
+                                selectedCategories.add(category)
+                                selected = true
+                            } else {
+                                selectedCategories.remove(category)
+                                selected = false
+                            } }
                         ){
-                            var selected by remember { mutableStateOf(selectedCategories.contains(category)) }
 
                             if(selected) {
                                 Icon(
@@ -104,13 +112,7 @@ fun CategorySelectionDialog(
 
                             TextButton(
                                 onClick = {
-                                    if (!selected && !selectedCategories.contains(category)){
-                                        selectedCategories.add(category)
-                                        selected = true
-                                    } else {
-                                        selectedCategories.remove(category)
-                                        selected = false
-                                    }
+
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()

@@ -335,7 +335,11 @@ fun TransactionCategoryCard(
 
                             //first remove category from all transactions
                             for (t in transactionsLogsViewModel.uiState.value.transactions){
-                                transactionsLogsViewModel.removeCategoryFromTransaction(t, category)
+                                var categorytoremove : TransactionCategory? = null
+                                for(c in t.categories){
+                                    if(c.name == category.name) categorytoremove = c
+                                }
+                                if(categorytoremove != null) transactionsLogsViewModel.removeCategoryFromTransaction(t, categorytoremove)
                             }
 
 
