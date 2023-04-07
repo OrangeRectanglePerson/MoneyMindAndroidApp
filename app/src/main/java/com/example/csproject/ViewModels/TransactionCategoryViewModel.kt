@@ -41,6 +41,10 @@ class TransactionCategoryViewModel() : ViewModel()  {
         return null
     }
 
+    fun getCategoryList() : List<TransactionCategory>{
+        return _uiState.value.categories
+    }
+
     fun addCategory(category: TransactionCategory) : Boolean{
         return if(getCategory(category.name) == null) {
 

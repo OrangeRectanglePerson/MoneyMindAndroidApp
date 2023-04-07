@@ -170,8 +170,11 @@ fun GraphsScreen(
                                     LineChart(
                                         lineChartData = getMoneyTimeLineGraphData(
                                             transactions = transactionLogsState.collectAsState().value.transactions,
+                                            categories = transactionCategoryViewModel.getCategoryList(),
                                             lowerDateLimit = graphScreenState.collectAsState().value.lowerDateLimit,
                                             upperDateLimit = graphScreenState.collectAsState().value.upperDateLimit,
+                                            filteredCategories = graphScreenViewModel.getCategoryWhitelist(),
+                                            filter = graphScreenViewModel.getCategoryFilterStatus()
                                         ),
                                         // Optional properties.
                                         modifier = Modifier,
@@ -495,8 +498,11 @@ fun getPieChartData(
 
 fun getMoneyTimeLineGraphData(
     transactions : List<TransactionLog>,
+    categories: List<TransactionCategory>,
     lowerDateLimit : Date,
-    upperDateLimit : Date
+    upperDateLimit : Date,
+    filteredCategories : List<TransactionCategory> = ArrayList(),
+    filter : Boolean,
 ) : LineChartData{
     var listOfPoints : ArrayList<LineChartData.Point> = ArrayList()
     var date = Calendar.getInstance()
@@ -504,15 +510,34 @@ fun getMoneyTimeLineGraphData(
     var UDL = Calendar.getInstance()
     UDL.time = upperDateLimit
 
+    val listOfFilteredCategoryNames = ArrayList<String>()
+    if(filter && filteredCategories.isNotEmpty()) {
+        for (c in filteredCategories) {
+            listOfFilteredCategoryNames.add(c.name)
+        }
+    } else {
+        for(c in categories){
+            listOfFilteredCategoryNames.add(c.name)
+        }
+    }
+
     do {
         var totalMoneyLoggedThisDay = 0.0
         for(t in transactions){
-            val tDate = t.date
-            if(
-                date.get(Calendar.DATE) == tDate.get(Calendar.DATE)
-                && date.get(Calendar.MONTH) == tDate.get(Calendar.MONTH)
-                && date.get(Calendar.YEAR) == tDate.get(Calendar.YEAR)
-            ) { totalMoneyLoggedThisDay += t.amount }
+            var isToBeConsidered = true
+            for(c in t.categories){
+                if(!listOfFilteredCategoryNames.contains(c.name)) isToBeConsidered = false
+            }
+            if(isToBeConsidered) {
+                val tDate = t.date
+                if (
+                    date.get(Calendar.DATE) == tDate.get(Calendar.DATE)
+                    && date.get(Calendar.MONTH) == tDate.get(Calendar.MONTH)
+                    && date.get(Calendar.YEAR) == tDate.get(Calendar.YEAR)
+                ) {
+                    totalMoneyLoggedThisDay += t.amount
+                }
+            }
         }
         listOfPoints.add(LineChartData.Point(totalMoneyLoggedThisDay.toFloat(),""))
         Log.d("lol", String.format("%s = %.2f",SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(date.time), totalMoneyLoggedThisDay))
@@ -526,12 +551,20 @@ fun getMoneyTimeLineGraphData(
     //again one more time to include upper limit
     var totalMoneyLoggedThisDay = 0.0
     for(t in transactions){
-        val tDate = t.date
-        if(
-            date.get(Calendar.DATE) == tDate.get(Calendar.DATE)
-            && date.get(Calendar.MONTH) == tDate.get(Calendar.MONTH)
-            && date.get(Calendar.YEAR) == tDate.get(Calendar.YEAR)
-        ) { totalMoneyLoggedThisDay += t.amount }
+        var isToBeConsidered = true
+        for(c in t.categories){
+            if(!listOfFilteredCategoryNames.contains(c.name)) isToBeConsidered = false
+        }
+        if(isToBeConsidered) {
+            val tDate = t.date
+            if (
+                date.get(Calendar.DATE) == tDate.get(Calendar.DATE)
+                && date.get(Calendar.MONTH) == tDate.get(Calendar.MONTH)
+                && date.get(Calendar.YEAR) == tDate.get(Calendar.YEAR)
+            ) {
+                totalMoneyLoggedThisDay += t.amount
+            }
+        }
     }
     listOfPoints.add(LineChartData.Point(totalMoneyLoggedThisDay.toFloat(),""))
     Log.d("lol", String.format("%s = %.2f",SimpleDateFormat("yyyy.MM.dd", Locale.getDefault()).format(date.time), totalMoneyLoggedThisDay))
