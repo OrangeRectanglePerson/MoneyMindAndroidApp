@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import com.example.csproject.R
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.ViewModels.TransactionLogViewModel
+import com.example.csproject.data.TransactionCategory
 import com.example.csproject.data.TransactionLog
+import com.example.csproject.ui.CommonUI.CategorySelectionDialog
 import com.example.csproject.ui.CommonUI.LogTransactionDialog
 import com.example.csproject.ui.CommonUI.TransactionLogCard
 import com.example.csproject.ui.Extras.putSerializable
@@ -41,6 +43,13 @@ fun TransactionLogsScreen(
     val context = LocalContext.current
     val transactionLogsState by remember{ mutableStateOf(transactionsLogViewModel.uiState) }
     var showTransactionCreationDialog by remember{ mutableStateOf(false) }
+
+    var showFiltrationDialog by remember{ mutableStateOf(false) }
+    val whitelistedCategories = ArrayList<TransactionCategory>()
+
+    for(c in transactionCategoryViewModel.getCategoryList()){
+        whitelistedCategories.add(c)
+    }
 
 
     Scaffold(
@@ -101,7 +110,7 @@ fun TransactionLogsScreen(
                             ){
                                 item {
                                     TextButton(
-                                        onClick = { },
+                                        onClick = { showFiltrationDialog = true },
                                         modifier = Modifier
                                             .width(((context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density - 3 * 10) * (3.0 / 4.0)).dp)
                                             .background(
@@ -152,12 +161,22 @@ fun TransactionLogsScreen(
                         }
 
                         items(items = transactionLogsState.value.transactions){ transaction ->
-                            TransactionLogCard(
-                                transaction = transaction ,
-                                transactionCategoriesState = transactionCategoryViewModel.uiState.collectAsState().value,
-                                transactionLogsState = transactionLogsState.collectAsState().value
-                            )
-                            Spacer(modifier = Modifier.height(10.dp))
+                            val whitelistedCategoryNames = ArrayList<String>()
+                            for( c in whitelistedCategories){
+                                whitelistedCategoryNames.add(c.name)
+                            }
+                            var toBeConsidered = true
+                            for(c in transaction.categories){
+                                if (!whitelistedCategoryNames.contains(c.name)) toBeConsidered = false
+                            }
+                            if(toBeConsidered) {
+                                TransactionLogCard(
+                                    transaction = transaction,
+                                    transactionCategoriesState = transactionCategoryViewModel.uiState.collectAsState().value,
+                                    transactionLogsState = transactionLogsState.collectAsState().value
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                            }
                         }
                     }
                 }
@@ -190,6 +209,20 @@ fun TransactionLogsScreen(
                                 ).apply()
 
                             showTransactionCreationDialog = false
+                        }
+                    )
+                }
+
+                if(showFiltrationDialog){
+                    CategorySelectionDialog(
+                        originalSelection = whitelistedCategories,
+                        transactionCategoriesToChooseFrom = transactionCategoryViewModel.uiState.collectAsState().value,
+                        onDismiss = { showFiltrationDialog = false },
+                        onPositiveClick = {
+                            whitelistedCategories.clear()
+                            for (c in it) whitelistedCategories.add(c)
+
+                            showFiltrationDialog = false
                         }
                     )
                 }

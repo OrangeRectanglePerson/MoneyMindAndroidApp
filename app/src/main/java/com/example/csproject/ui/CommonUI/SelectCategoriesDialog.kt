@@ -34,7 +34,7 @@ import com.example.csproject.ui.theme.LimeGreen
 
 @Composable
 fun CategorySelectionDialog(
-    originalSelection : ArrayList<TransactionCategory>,
+    originalSelection : List<TransactionCategory>,
     transactionCategoriesToChooseFrom: TransactionCategoriesState,
     onDismiss: (selectedCategories : ArrayList<TransactionCategory>) -> Unit,
     onPositiveClick: (selectedCategories : ArrayList<TransactionCategory>) -> Unit
