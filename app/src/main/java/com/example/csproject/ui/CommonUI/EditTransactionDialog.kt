@@ -27,6 +27,7 @@ import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionCategory
 import com.example.csproject.data.TransactionLog
+import com.example.csproject.data.TransactionLogsState
 import com.example.csproject.ui.theme.*
 import java.util.*
 
@@ -34,6 +35,7 @@ import java.util.*
 fun EditTransactionDialog(
     transactionToEdit : TransactionLog,
     transactionCategoriesState: TransactionCategoriesState,
+    transactionLogsState: TransactionLogsState,
     onDismiss: (tName : String, tAmt : Double, selectedCategories : ArrayList<TransactionCategory>) -> Unit,
     onPositiveClick: (tName : String, tAmt : Double, selectedCategories : ArrayList<TransactionCategory>) -> Unit,
     onNegativeClick: (tName : String, tAmt : Double, selectedCategories : ArrayList<TransactionCategory>) -> Unit,
@@ -48,6 +50,11 @@ fun EditTransactionDialog(
     var selectedCategories : ArrayList<TransactionCategory> = ArrayList()
     for(i in transactionToEdit.categories){
         selectedCategories.add(i)
+    }
+
+    val listOfUsedTransactionNames = ArrayList<String>()
+    for(t in transactionLogsState.transactions) {
+        if(t.name != transactionToEdit.name) listOfUsedTransactionNames.add(t.name)
     }
 
     CSProjectTheme() {
@@ -124,6 +131,17 @@ fun EditTransactionDialog(
                             textStyle = MaterialTheme.typography.body1
                         )
 
+                        if(listOfUsedTransactionNames.contains(transactionName)) {
+                            Text(
+                                text = "This transaction name already exists!",
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                style = MaterialTheme.typography.caption,
+                                color = Color(122, 0, 25)
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(5.dp))
 
                         OutlinedTextField(
@@ -147,7 +165,7 @@ fun EditTransactionDialog(
 
                         if(!isValidDouble) {
                             Text(
-                                text = "This is not a valid amount of money",
+                                text = "This is not a valid amount of money!",
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth(),
@@ -215,7 +233,7 @@ fun EditTransactionDialog(
                                     shape = RoundedCornerShape(30)
                                 )
                                 .padding(5.dp),
-                            enabled = isValidDouble,
+                            enabled = isValidDouble && !listOfUsedTransactionNames.contains(transactionName),
                         ) {
                             Text(
                                 "Edit Transaction",
@@ -287,6 +305,7 @@ fun previewEditingDialog(){
     val TCS by remember { mutableStateOf(TCVM.uiState) }
     EditTransactionDialog(
         transactionToEdit = TransactionLog("name", 20.23, Calendar.getInstance()),
+        transactionLogsState = TransactionLogsState(),
         transactionCategoriesState = TCS.collectAsState().value,
         onDismiss = {_,_,_ -> },
         onPositiveClick = {_,_,_ -> },

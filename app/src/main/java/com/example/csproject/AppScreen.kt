@@ -1,6 +1,8 @@
 package com.example.csproject
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -361,16 +363,18 @@ fun MainApp(
                         )
                     },
                     gotoLoggingHelpButtonAction = {
-                        navController.navigate(AppScreen.OperatingInstructions.name)
-                        helpScreenViewModel.setHelpScreenOption("Logging")
+                        // navController.navigate(AppScreen.OperatingInstructions.name)
+                        // helpScreenViewModel.setHelpScreenOption("Logging")
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.logging_help_url)))
+                        context.startActivity(intent)
                     },
                     gotoCategorisationHelpButtonAction = {
-                        navController.navigate(AppScreen.OperatingInstructions.name)
-                        helpScreenViewModel.setHelpScreenOption("Categorisation")
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.categorising_help_url)))
+                        context.startActivity(intent)
                     },
                     gotoGraphingHelpButtonAction = {
-                        navController.navigate(AppScreen.OperatingInstructions.name)
-                        helpScreenViewModel.setHelpScreenOption("Graphing")
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(context.getString(R.string.graphing_help_url)))
+                        context.startActivity(intent)
                     },
                     gotoSettingsButtonAction = {
                         navController.navigate(AppScreen.OperatingInstructions.name)

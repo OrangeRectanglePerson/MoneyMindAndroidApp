@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.content.Context
 import android.util.Log
 import android.widget.DatePicker
-import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -299,7 +298,7 @@ fun GraphsScreen(
 
                 //editing graph dialog
                 if(editGraphDialog) {
-                    Toast.makeText(context, "edit graph button klcik", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "edit graph button klcik", Toast.LENGTH_SHORT).show()
 
 
                     GraphSettingsDialog(

@@ -26,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionCategory
+import com.example.csproject.data.TransactionLogsState
 import com.example.csproject.ui.theme.CSProjectTheme
 import com.example.csproject.ui.theme.DarkCyan
 import com.example.csproject.ui.theme.LibreOfficeBlue
@@ -34,6 +35,7 @@ import com.example.csproject.ui.theme.LimeGreen
 @Composable
 fun LogTransactionDialog(
     transactionCategoriesState: TransactionCategoriesState,
+    transactionLogsState: TransactionLogsState,
     onDismiss: (tName : String, tAmt : Double, selectedCategories : ArrayList<TransactionCategory>) -> Unit,
     onPositiveClick: (tName : String, tAmt : Double, selectedCategories : ArrayList<TransactionCategory>) -> Unit
 ){
@@ -45,6 +47,9 @@ fun LogTransactionDialog(
     var showNestedDialog by remember { mutableStateOf(false) }
 
     var selectedCategories : ArrayList<TransactionCategory> = ArrayList()
+
+    val listOfUsedTransactionNames = ArrayList<String>()
+    for(t in transactionLogsState.transactions) listOfUsedTransactionNames.add(t.name)
 
     CSProjectTheme() {
         Dialog(
@@ -119,6 +124,17 @@ fun LogTransactionDialog(
                             textStyle = MaterialTheme.typography.body1
                         )
 
+                        if(listOfUsedTransactionNames.contains(transactionName)) {
+                            Text(
+                                text = "This transaction name already exists!",
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                style = MaterialTheme.typography.caption,
+                                color = Color(122, 0, 25)
+                            )
+                        }
+
                         Spacer(modifier = Modifier.height(5.dp))
 
                         OutlinedTextField(
@@ -142,7 +158,7 @@ fun LogTransactionDialog(
 
                         if(!isValidDouble) {
                             Text(
-                                text = "This is not a valid amount of money",
+                                text = "This is not a valid amount of money!",
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth(),
@@ -229,7 +245,7 @@ fun LogTransactionDialog(
                                     shape = RoundedCornerShape(30)
                                 )
                                 .padding(5.dp),
-                            enabled = isValidDouble,
+                            enabled = isValidDouble && !listOfUsedTransactionNames.contains(transactionName),
                         ) {
                             Text(
                                 "Log Transaction",
@@ -252,6 +268,7 @@ fun previewLoggingDialog(){
     val TCS by remember { mutableStateOf(TCVM.uiState) }
     LogTransactionDialog(
         transactionCategoriesState = TCS.collectAsState().value,
+        transactionLogsState = TransactionLogsState(),
         onDismiss = {_,_,_ -> },
         onPositiveClick = {_,_,_ -> }
     )

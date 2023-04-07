@@ -94,6 +94,7 @@ fun TransactionLogCard(
             if(showTransactionEditDialog) {
                 EditTransactionDialog(
                     transactionToEdit = transaction,
+                    transactionLogsState = transactionLogsState,
                     transactionCategoriesState = transactionCategoriesState,
                     onDismiss = { tName, tAmt, selectedCategories ->
                         showTransactionEditDialog = false

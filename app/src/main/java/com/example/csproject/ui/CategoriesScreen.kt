@@ -152,6 +152,7 @@ fun CategoriesScreen(
                 if(showTransactionCreationDialog) {
                     LogTransactionDialog(
                         transactionCategoriesState = transactionCategoryViewModel.uiState.collectAsState().value,
+                        transactionLogsState = transactionLogsState.collectAsState().value,
                         onDismiss = { tName, tAmt, selectedCategories ->
                             showTransactionCreationDialog = false
                         },
