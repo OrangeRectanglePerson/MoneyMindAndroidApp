@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.csproject'
+    namespace 'com.example.moneymind'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.csproject"
+        applicationId "com.example.moneymind"
         minSdk 27
         targetSdk 33
         versionCode 1
