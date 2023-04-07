@@ -10,14 +10,14 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.CSProject"
+        android:theme="@style/Theme.MoneyMind"
         tools:targetApi="31">
         <activity
             android:name=".NavHostMainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleInstance"
-            android:theme="@style/Theme.CSProject">
+            android:theme="@style/Theme.MoneyMind">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
