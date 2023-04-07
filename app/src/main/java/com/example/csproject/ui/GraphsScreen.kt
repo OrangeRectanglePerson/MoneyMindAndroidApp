@@ -1,17 +1,15 @@
 package com.example.csproject.ui
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.util.Log
 import android.widget.DatePicker
 import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,19 +18,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.csproject.R
 import com.example.csproject.ViewModels.GraphScreenViewModel
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.ViewModels.TransactionLogViewModel
 import com.example.csproject.data.GraphScreenState
+import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionCategory
 import com.example.csproject.data.TransactionLog
+import com.example.csproject.ui.CommonUI.CategorySelectionDialog
+import com.example.csproject.ui.Extras.putSerializable
 import com.example.csproject.ui.theme.*
 import me.bytebeats.views.charts.bar.BarChart
 import me.bytebeats.views.charts.bar.BarChartData
@@ -54,7 +56,7 @@ fun GraphsScreen(
     _topBar : @Composable () -> Unit,
     transactionsLogViewModel : TransactionLogViewModel,
     transactionCategoryViewModel: TransactionCategoryViewModel,
-    graphScreenViewModel : GraphScreenViewModel = viewModel(),
+    graphScreenViewModel : GraphScreenViewModel,
 ){
 
     val context = LocalContext.current
@@ -62,6 +64,16 @@ fun GraphsScreen(
     val transactionCategoriesState by remember{ mutableStateOf(transactionCategoryViewModel.uiState) }
     val graphScreenState by remember{ mutableStateOf(graphScreenViewModel.uiState) }
     var editGraphDialog by remember{ mutableStateOf(false) }
+
+    val categoryNames = ArrayList<String>()
+    for(c2 in transactionCategoriesState.collectAsState().value.categories){
+        categoryNames.add(c2.name)
+    }
+    val validCategories = ArrayList<TransactionCategory>()
+    for(c in graphScreenState.collectAsState().value.categoryWhitelist){
+        if (categoryNames.contains(c.name)) validCategories.add(c)
+    }
+    graphScreenViewModel.setGraphScreenWhitelistedCateogries(validCategories)
 
 
     Scaffold(
@@ -158,7 +170,6 @@ fun GraphsScreen(
                                     LineChart(
                                         lineChartData = getMoneyTimeLineGraphData(
                                             transactions = transactionLogsState.collectAsState().value.transactions,
-                                            categories = transactionCategoriesState.collectAsState().value.categories,
                                             lowerDateLimit = graphScreenState.collectAsState().value.lowerDateLimit,
                                             upperDateLimit = graphScreenState.collectAsState().value.upperDateLimit,
                                         ),
@@ -177,6 +188,8 @@ fun GraphsScreen(
                                         val barChartData = getBarChartDataPerCategory(
                                             transactions = transactionLogsState.collectAsState().value.transactions,
                                             categories = transactionCategoriesState.collectAsState().value.categories,
+                                            filteredCategories = graphScreenState.collectAsState().value.categoryWhitelist,
+                                            filter = graphScreenState.collectAsState().value.filterByCategories,
                                             valueType = graphScreenState.collectAsState().value.unitType
                                         )
                                         BarChart(
@@ -206,6 +219,8 @@ fun GraphsScreen(
                                             pieChartData = getPieChartData(
                                                 transactions = transactionLogsState.collectAsState().value.transactions,
                                                 categories = transactionCategoriesState.collectAsState().value.categories,
+                                                filteredCategories = graphScreenState.collectAsState().value.categoryWhitelist,
+                                                filter = graphScreenState.collectAsState().value.filterByCategories,
                                                 valueType = graphScreenState.collectAsState().value.unitType
                                             ),
                                             // Optional properties.
@@ -229,9 +244,12 @@ fun GraphsScreen(
 
                         items(items = transactionCategoriesState.value.categories){ category ->
                             val text : StringBuilder = java.lang.StringBuilder(category.name)
-                            if(graphScreenState.collectAsState().value.graphType == GraphScreenViewModel.PIE_CHART){
+                            if(
+                                (graphScreenState.collectAsState().value.graphType == GraphScreenViewModel.PIE_CHART)
+                                && (!graphScreenViewModel.getMoneyTimeGraphingStatus())
+                            ){
                                 val valueType = graphScreenState.collectAsState().value.unitType
-                                var transactions = transactionLogsState.collectAsState().value.transactions
+                                val transactions = transactionLogsState.collectAsState().value.transactions
                                 if(valueType == GraphScreenViewModel.PERCENTAGE_OF_NUMBER){
                                     var numofitems = 0
                                     for (t in transactions) {
@@ -254,6 +272,15 @@ fun GraphsScreen(
                                     text.append(String.format(" | $%.2f", totalMoneyLoggedUnderCategory))
                                 }
                             }
+                            if(
+                                isCategoryExcluded(
+                                    category = category,
+                                    inclusionList = graphScreenViewModel.getCategoryWhitelist(),
+                                    isExclusionPolicyInPlace = graphScreenViewModel.getCategoryFilterStatus()
+                                )
+                            ){
+                                text.append(" | Excluded")
+                            }
                             Text(
                                 text = text.toString(),
                                 style = MaterialTheme.typography.caption,
@@ -273,6 +300,7 @@ fun GraphsScreen(
 
 
                     GraphSettingsDialog(
+                        categories = transactionCategoriesState.collectAsState().value,
                         current = graphScreenState.collectAsState().value,
                         onDismiss = { editGraphDialog = false },
                         onPositiveClick =  {
@@ -283,75 +311,105 @@ fun GraphsScreen(
                             graphScreenViewModel.setGraphScreenLowerDateLimit(it.lowerDateLimit)
                             graphScreenViewModel.setGraphScreenUpperDateLimit(it.upperDateLimit)
 
+                            graphScreenViewModel.setGraphScreenFilterByCateogries(it.filterByCategories)
+                            graphScreenViewModel.setGraphScreenWhitelistedCateogries(it.categoryWhitelist)
+
+                            context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).edit()
+                                .putSerializable("gssJSON", graphScreenViewModel.uiState.value).apply()
+
                             editGraphDialog = false
                         }
                     )
                 }
-
-
             }
         }
     )
 }
 
 
-fun getBarChartDataPerCategory(transactions : List<TransactionLog>, categories : List<TransactionCategory>, valueType : Int) : BarChartData{
-    var listOfBars : ArrayList<BarChartData.Bar> = ArrayList()
+fun getBarChartDataPerCategory(
+    transactions : List<TransactionLog>,
+    categories : List<TransactionCategory>,
+    filteredCategories : List<TransactionCategory> = ArrayList(),
+    filter : Boolean,
+    valueType : Int
+) : BarChartData{
+    val listOfBars : ArrayList<BarChartData.Bar> = ArrayList()
+
+    val listOfFilteredCategoryNames = ArrayList<String>()
+    if(filter) {
+        for (c in filteredCategories) {
+            listOfFilteredCategoryNames.add(c.name)
+        }
+    }
+
+    if(listOfFilteredCategoryNames.size == 0) {
+        for(c in categories){
+            listOfFilteredCategoryNames.add(c.name)
+        }
+    }
+
     if(valueType == GraphScreenViewModel.PERCENTAGE_OF_NUMBER) {
         for (c in categories) {
-            var numofitems = 0
-            for (t in transactions) {
-                if (t.categories.contains(c)) numofitems++
-            }
-            listOfBars.add(
-                BarChartData.Bar(
-                    value = ((numofitems.toDouble() / transactions.size.toDouble()) * 100).toFloat(),
-                    color = c.color,
-                    label = String.format(
-                        "%.2f%%",
-                        ((numofitems.toDouble() / transactions.size.toDouble()) * 100)
+            if(listOfFilteredCategoryNames.contains(c.name)) {
+                var numofitems = 0
+                for (t in transactions) {
+                    if (t.categories.contains(c)) numofitems++
+                }
+                listOfBars.add(
+                    BarChartData.Bar(
+                        value = ((numofitems.toDouble() / transactions.size.toDouble()) * 100).toFloat(),
+                        color = c.color,
+                        label = String.format(
+                            "%.2f%%",
+                            ((numofitems.toDouble() / transactions.size.toDouble()) * 100)
+                        )
+                        //    .replace(Regex(".{8}")) { matchResult ->
+                        //    String.format("%s%n|",matchResult.value)
+                        //}
                     )
-                    //    .replace(Regex(".{8}")) { matchResult ->
-                    //    String.format("%s%n|",matchResult.value)
-                    //}
                 )
-            )
+            }
         }
     } else if (valueType == GraphScreenViewModel.PERCENTAGE_OF_MONEY){
         var totalMoneyLogged : Double = 0.0
         for(t in transactions) totalMoneyLogged += t.amount
         for (c in categories) {
-            var totalMoneyLoggedUnderCategory : Double = 0.0
-            for(t in transactions){
-                if (t.categories.contains(c)) totalMoneyLoggedUnderCategory += t.amount
-            }
-            listOfBars.add(
-                BarChartData.Bar(
-                    value = ((totalMoneyLoggedUnderCategory / totalMoneyLogged) * 100).toFloat(),
-                    color = c.color,
-                    label = String.format(
-                        "%.2f%%",
-                        ((totalMoneyLoggedUnderCategory / totalMoneyLogged) * 100)
+            if(listOfFilteredCategoryNames.contains(c.name)) {
+                var totalMoneyLoggedUnderCategory: Double = 0.0
+                for (t in transactions) {
+                    if (t.categories.contains(c)) totalMoneyLoggedUnderCategory += t.amount
+                }
+                listOfBars.add(
+                    BarChartData.Bar(
+                        value = ((totalMoneyLoggedUnderCategory / totalMoneyLogged) * 100).toFloat(),
+                        color = c.color,
+                        label = String.format(
+                            "%.2f%%",
+                            ((totalMoneyLoggedUnderCategory / totalMoneyLogged) * 100)
+                        )
                     )
                 )
-            )
+            }
         }
     } else if (valueType == GraphScreenViewModel.AMOUNT_OF_MONEY){
         for (c in categories) {
-            var totalMoneyLoggedUnderCategory : Double = 0.0
-            for(t in transactions){
-                if (t.categories.contains(c)) totalMoneyLoggedUnderCategory += t.amount
-            }
-            listOfBars.add(
-                BarChartData.Bar(
-                    value = totalMoneyLoggedUnderCategory.toFloat(),
-                    color = c.color,
-                    label = String.format(
-                        "$%.2f",
-                        totalMoneyLoggedUnderCategory
+            if(listOfFilteredCategoryNames.contains(c.name)) {
+                var totalMoneyLoggedUnderCategory: Double = 0.0
+                for (t in transactions) {
+                    if (t.categories.contains(c)) totalMoneyLoggedUnderCategory += t.amount
+                }
+                listOfBars.add(
+                    BarChartData.Bar(
+                        value = totalMoneyLoggedUnderCategory.toFloat(),
+                        color = c.color,
+                        label = String.format(
+                            "$%.2f",
+                            totalMoneyLoggedUnderCategory
+                        )
                     )
                 )
-            )
+            }
         }
     }
     return BarChartData(
@@ -360,48 +418,74 @@ fun getBarChartDataPerCategory(transactions : List<TransactionLog>, categories :
     )
 }
 
-fun getPieChartData(transactions : List<TransactionLog>, categories : List<TransactionCategory>, valueType : Int) : PieChartData{
-    var listOfSlices : ArrayList<PieChartData.Slice> = ArrayList()
+fun getPieChartData(
+    transactions : List<TransactionLog>,
+    categories : List<TransactionCategory>,
+    filteredCategories : List<TransactionCategory> = ArrayList(),
+    filter : Boolean,
+    valueType : Int
+) : PieChartData{
+    val listOfSlices : ArrayList<PieChartData.Slice> = ArrayList()
+
+    val listOfFilteredCategoryNames = ArrayList<String>()
+    if(filter) {
+        for (c in filteredCategories) {
+            listOfFilteredCategoryNames.add(c.name)
+        }
+    }
+
+    if(listOfFilteredCategoryNames.size == 0) {
+        for(c in categories){
+            listOfFilteredCategoryNames.add(c.name)
+        }
+    }
+
     if(valueType == GraphScreenViewModel.PERCENTAGE_OF_NUMBER) {
         for (c in categories) {
-            var numofitems = 0
-            for (t in transactions) {
-                if (t.categories.contains(c)) numofitems++
-            }
-            listOfSlices.add(
-                PieChartData.Slice(
-                    value = ((numofitems.toDouble() / transactions.size.toDouble()) * 100).toFloat(),
-                    color = c.color,
+            if(listOfFilteredCategoryNames.contains(c.name)) {
+                var numofitems = 0
+                for (t in transactions) {
+                    if (t.categories.contains(c)) numofitems++
+                }
+                listOfSlices.add(
+                    PieChartData.Slice(
+                        value = ((numofitems.toDouble() / transactions.size.toDouble()) * 100).toFloat(),
+                        color = c.color,
+                    )
                 )
-            )
+            }
         }
     } else if (valueType == GraphScreenViewModel.PERCENTAGE_OF_MONEY){
         var totalMoneyLogged = 0.0
         for(t in transactions) totalMoneyLogged += t.amount
         for (c in categories) {
-            var totalMoneyLoggedUnderCategory = 0.0
-            for(t in transactions){
-                if (t.categories.contains(c)) totalMoneyLoggedUnderCategory += t.amount
-            }
-            listOfSlices.add(
-                PieChartData.Slice(
-                    value = ((totalMoneyLoggedUnderCategory / totalMoneyLogged) * 100).toFloat(),
-                    color = c.color,
+            if(listOfFilteredCategoryNames.contains(c.name)) {
+                var totalMoneyLoggedUnderCategory = 0.0
+                for (t in transactions) {
+                    if (t.categories.contains(c)) totalMoneyLoggedUnderCategory += t.amount
+                }
+                listOfSlices.add(
+                    PieChartData.Slice(
+                        value = ((totalMoneyLoggedUnderCategory / totalMoneyLogged) * 100).toFloat(),
+                        color = c.color,
+                    )
                 )
-            )
+            }
         }
     } else if (valueType == GraphScreenViewModel.AMOUNT_OF_MONEY){
         for (c in categories) {
-            var totalMoneyLoggedUnderCategory : Double = 0.0
-            for(t in transactions){
-                if (t.categories.contains(c)) totalMoneyLoggedUnderCategory += t.amount
-            }
-            listOfSlices.add(
-                PieChartData.Slice(
-                    value = totalMoneyLoggedUnderCategory.toFloat(),
-                    color = c.color,
+            if(listOfFilteredCategoryNames.contains(c.name)) {
+                var totalMoneyLoggedUnderCategory: Double = 0.0
+                for (t in transactions) {
+                    if (t.categories.contains(c)) totalMoneyLoggedUnderCategory += t.amount
+                }
+                listOfSlices.add(
+                    PieChartData.Slice(
+                        value = totalMoneyLoggedUnderCategory.toFloat(),
+                        color = c.color,
+                    )
                 )
-            )
+            }
         }
     }
     return PieChartData(
@@ -411,7 +495,6 @@ fun getPieChartData(transactions : List<TransactionLog>, categories : List<Trans
 
 fun getMoneyTimeLineGraphData(
     transactions : List<TransactionLog>,
-    categories : List<TransactionCategory>,
     lowerDateLimit : Date,
     upperDateLimit : Date
 ) : LineChartData{
@@ -461,6 +544,7 @@ fun getMoneyTimeLineGraphData(
 
 @Composable
 fun GraphSettingsDialog(
+    categories : TransactionCategoriesState,
     current : GraphScreenState,
     onDismiss: (newGSS : GraphScreenState) -> Unit,
     onPositiveClick: (newGSS : GraphScreenState) -> Unit
@@ -468,8 +552,9 @@ fun GraphSettingsDialog(
 
     var graphType by rememberSaveable { mutableStateOf(current.graphType) }
     var unitType by rememberSaveable { mutableStateOf(current.unitType) }
-    var filterByCategories by rememberSaveable { mutableStateOf(current.filterByCategories) }
 
+    var filterByCategories by rememberSaveable { mutableStateOf(current.filterByCategories) }
+    var showCategorySelectionDialog by rememberSaveable { mutableStateOf(false) }
     var categoryWhiteList = ArrayList<TransactionCategory>()
     for(c in current.categoryWhitelist) categoryWhiteList.add(c)
 
@@ -497,6 +582,8 @@ fun GraphSettingsDialog(
                         moneyTimeMode = isMoneyTimeGraph,
                         lowerDateLimit = lowerDateLimit.time,
                         upperDateLimit = upperDateLimit.time,
+                        filterByCategories = filterByCategories,
+                        categoryWhitelist = categoryWhiteList
                     )
                 )
             },
@@ -783,10 +870,7 @@ fun GraphSettingsDialog(
                                     )
                                     .border(
                                         width = 5.dp,
-                                        color = chartSelectorBorderButtonColor(
-                                            isMoneyTimeGraph = isMoneyTimeGraph,
-                                            isGraphType = graphType == GraphScreenViewModel.PIE_CHART
-                                        ),
+                                        color = MaterialTheme.colors.primaryVariant,
                                         shape = RoundedCornerShape(30)
                                     )
                                     .padding(5.dp)
@@ -811,10 +895,7 @@ fun GraphSettingsDialog(
                                     )
                                     .border(
                                         width = 5.dp,
-                                        color = chartSelectorBorderButtonColor(
-                                            isMoneyTimeGraph = isMoneyTimeGraph,
-                                            isGraphType = graphType == GraphScreenViewModel.PIE_CHART,
-                                        ),
+                                        color = MaterialTheme.colors.primaryVariant,
                                         shape = RoundedCornerShape(30)
                                     )
                                     .padding(5.dp)
@@ -838,9 +919,53 @@ fun GraphSettingsDialog(
                         )
                         Spacer(Modifier.height(10.dp))
 
+                        Row(){
+
+                            if(filterByCategories) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.selected),
+                                    contentDescription = "selected icon",
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                        .align(Alignment.CenterVertically)
+                                        .clickable { filterByCategories = false }
+                                )
+                            } else {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.unselected),
+                                    contentDescription = "unselected icon",
+                                    modifier = Modifier
+                                        .wrapContentWidth()
+                                        .align(Alignment.CenterVertically)
+                                        .clickable { filterByCategories = true }
+                                )
+                            }
+
+                            TextButton(
+                                onClick = { showCategorySelectionDialog = true },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        color = MaterialTheme.colors.primary,
+                                        shape = RoundedCornerShape(30)
+                                    )
+                                    .border(
+                                        width = 3.dp,
+                                        color = MaterialTheme.colors.primaryVariant,
+                                        shape = RoundedCornerShape(30)
+                                    ),
+                            ){
+                                Text(
+                                    "Filter in/out categories",
+                                    style = MaterialTheme.typography.button,
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        }
+
                     }
 
-                    Spacer(modifier = Modifier.height(5.dp))
+
 
 
                     //.......................................................................
@@ -861,6 +986,8 @@ fun GraphSettingsDialog(
                                         moneyTimeMode = isMoneyTimeGraph,
                                         lowerDateLimit = lowerDateLimit.time,
                                         upperDateLimit = upperDateLimit.time,
+                                        filterByCategories = filterByCategories,
+                                        categoryWhitelist = categoryWhiteList
                                     )
                                 )
                             },
@@ -891,6 +1018,8 @@ fun GraphSettingsDialog(
                                         moneyTimeMode = isMoneyTimeGraph,
                                         lowerDateLimit = lowerDateLimit.time,
                                         upperDateLimit = upperDateLimit.time,
+                                        filterByCategories = filterByCategories,
+                                        categoryWhitelist = categoryWhiteList
                                     )
                                 )
                             },
@@ -952,13 +1081,27 @@ fun GraphSettingsDialog(
             )
         }
 
+        if(showCategorySelectionDialog){
+            CategorySelectionDialog(
+                originalSelection = categoryWhiteList,
+                transactionCategoriesToChooseFrom = categories,
+                onDismiss = { showCategorySelectionDialog = false },
+                onPositiveClick = {
+                    categoryWhiteList.clear()
+                    for(c in it) categoryWhiteList.add(c)
+
+                    showCategorySelectionDialog = false
+                }
+            )
+        }
+
     }
 }
 
 @Preview(showBackground = false)
 @Composable
 fun previewGSDialog(){
-    GraphSettingsDialog(current = GraphScreenState(), onDismiss = {}, onPositiveClick = {})
+    GraphSettingsDialog(categories = TransactionCategoriesState(), current = GraphScreenState(), onDismiss = {}, onPositiveClick = {})
 }
 
 
@@ -980,4 +1123,17 @@ fun OpenDatePickerDialog(listener : DatePickerDialog.OnDateSetListener){
         listener
         , now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH)
     ).show()
+}
+
+fun isCategoryExcluded(
+    category: TransactionCategory,
+    inclusionList : List<TransactionCategory>,
+    isExclusionPolicyInPlace : Boolean
+) : Boolean{
+    if(!isExclusionPolicyInPlace) return false
+    val inclusionListOfStrings : ArrayList<String> = ArrayList()
+    for(c in inclusionList){
+        inclusionListOfStrings.add(c.name)
+    }
+    return (!inclusionListOfStrings.contains(category.name))
 }

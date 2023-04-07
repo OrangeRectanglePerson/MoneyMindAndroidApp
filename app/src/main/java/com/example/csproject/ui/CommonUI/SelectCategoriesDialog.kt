@@ -83,13 +83,15 @@ fun CategorySelectionDialog(
                         var selected by remember { mutableStateOf(selectedCategories.contains(category)) }
 
                         Row(
-                            Modifier.clickable { if (!selected && !selectedCategories.contains(category)){
-                                selectedCategories.add(category)
-                                selected = true
-                            } else {
-                                selectedCategories.remove(category)
-                                selected = false
-                            } }
+                            Modifier.clickable {
+                                if (!selected && !selectedCategories.contains(category)){
+                                    selectedCategories.add(category)
+                                    selected = true
+                                } else {
+                                    selectedCategories.remove(category)
+                                    selected = false
+                                }
+                            }
                         ){
 
                             if(selected) {
@@ -112,7 +114,13 @@ fun CategorySelectionDialog(
 
                             TextButton(
                                 onClick = {
-
+                                    if (!selected && !selectedCategories.contains(category)){
+                                        selectedCategories.add(category)
+                                        selected = true
+                                    } else {
+                                        selectedCategories.remove(category)
+                                        selected = false
+                                    }
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()

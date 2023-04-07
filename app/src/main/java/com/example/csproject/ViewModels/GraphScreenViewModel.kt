@@ -2,6 +2,7 @@ package com.example.csproject.ViewModels
 
 import androidx.lifecycle.ViewModel
 import com.example.csproject.data.GraphScreenState
+import com.example.csproject.data.TransactionCategory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -69,5 +70,41 @@ class GraphScreenViewModel  : ViewModel() {
                 upperDateLimit = newUDL
             )
         }
+    }
+
+    fun setGraphScreenFilterByCateogries(filterByCategories : Boolean){
+        //use constants defined in companion object
+        //if out of range, default to lowest value
+        _uiState.update { currentState ->
+            currentState.copy(
+                filterByCategories = filterByCategories
+            )
+        }
+    }
+
+    fun setGraphScreenWhitelistedCateogries(whitelistedCategories : ArrayList<TransactionCategory>){
+        //use constants defined in companion object
+        //if out of range, default to lowest value
+        _uiState.update { currentState ->
+            currentState.copy(
+                categoryWhitelist = whitelistedCategories
+            )
+        }
+    }
+
+    fun setGraphScreenState(newGSS : GraphScreenState?){
+        _uiState.update {
+            newGSS ?: GraphScreenState()
+        }
+    }
+
+    fun getCategoryWhitelist() : ArrayList<TransactionCategory>{
+        return _uiState.value.categoryWhitelist
+    }
+    fun getCategoryFilterStatus() : Boolean{
+        return _uiState.value.filterByCategories
+    }
+    fun getMoneyTimeGraphingStatus() : Boolean{
+        return _uiState.value.moneyTimeMode
     }
 }

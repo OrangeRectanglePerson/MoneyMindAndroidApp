@@ -21,9 +21,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.csproject.ViewModels.GraphScreenViewModel
 import com.example.csproject.ViewModels.HelpScreenViewModel
 import com.example.csproject.ViewModels.TransactionCategoryViewModel
 import com.example.csproject.ViewModels.TransactionLogViewModel
+import com.example.csproject.data.GraphScreenState
 import com.example.csproject.data.TransactionCategoriesState
 import com.example.csproject.data.TransactionLogsState
 import com.example.csproject.ui.*
@@ -158,6 +160,7 @@ fun MainApp(
     helpScreenViewModel: HelpScreenViewModel = viewModel(),
     transactionLogsViewModel: TransactionLogViewModel = viewModel(),
     transactionCategoriesViewModel: TransactionCategoryViewModel = viewModel(),
+    graphScreenViewModel : GraphScreenViewModel = viewModel(),
     navController: NavHostController = rememberNavController()
 ) {
     // Get current back stack entry
@@ -178,6 +181,11 @@ fun MainApp(
     transactionLogsViewModel.changeTransactionLogsState(
         context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE)
             .getSerializable("transactionsJSON", TransactionLogsState::class.java)
+    )
+
+    graphScreenViewModel.setGraphScreenState(
+        context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE)
+            .getSerializable("gssJSON", GraphScreenState::class.java)
     )
 
     Scaffold { innerPadding ->
@@ -340,6 +348,7 @@ fun MainApp(
                     },
                     transactionsLogViewModel = transactionLogsViewModel,
                     transactionCategoryViewModel = transactionCategoriesViewModel,
+                    graphScreenViewModel = graphScreenViewModel
                 )
             }
             composable(route = AppScreen.OperatingInstructionsMenu.name){
