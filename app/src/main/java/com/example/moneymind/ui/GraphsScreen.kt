@@ -163,7 +163,7 @@ fun GraphsScreen(
                                 modifier = Modifier
                                     .background(color = Color.Transparent)
                                     .padding(10.dp)
-                                    .height(300.dp)
+                                    .height((context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density - 3 * 10).dp)
                             ) {
                                 if(graphScreenState.collectAsState().value.moneyTimeMode){
                                     LineChart(
@@ -186,7 +186,16 @@ fun GraphsScreen(
                                     )
                                 }
                                 else {
-                                    if (graphScreenState.collectAsState().value.graphType == GraphScreenViewModel.BAR_GRAPH) {
+                                    if(transactionCategoryViewModel.getCategoryList().isEmpty()){
+                                        Text(
+                                            text = "No categories to graph!",
+                                            style = MaterialTheme.typography.h3,
+                                            textAlign = TextAlign.Center,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .align(Alignment.Center),
+                                        )
+                                    } else if (graphScreenState.collectAsState().value.graphType == GraphScreenViewModel.BAR_GRAPH) {
                                         val barChartData = getBarChartDataPerCategory(
                                             transactions = transactionLogsState.collectAsState().value.transactions,
                                             categories = transactionCategoriesState.collectAsState().value.categories,
@@ -527,7 +536,7 @@ fun getMoneyTimeLineGraphData(
             for(c in t.categories){
                 if(!listOfFilteredCategoryNames.contains(c.name)) isToBeConsidered = false
             }
-            if(isToBeConsidered) {
+            if(categories.isEmpty() || isToBeConsidered) {
                 val tDate = t.date
                 if (
                     date.get(Calendar.DATE) == tDate.get(Calendar.DATE)
@@ -554,7 +563,7 @@ fun getMoneyTimeLineGraphData(
         for(c in t.categories){
             if(!listOfFilteredCategoryNames.contains(c.name)) isToBeConsidered = false
         }
-        if(isToBeConsidered) {
+        if(categories.isEmpty() || isToBeConsidered) {
             val tDate = t.date
             if (
                 date.get(Calendar.DATE) == tDate.get(Calendar.DATE)
