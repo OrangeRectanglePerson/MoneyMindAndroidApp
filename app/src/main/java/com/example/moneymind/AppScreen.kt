@@ -1,6 +1,5 @@
 package com.example.moneymind
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -27,11 +26,7 @@ import com.example.moneymind.ViewModels.GraphScreenViewModel
 import com.example.moneymind.ViewModels.HelpScreenViewModel
 import com.example.moneymind.ViewModels.TransactionCategoryViewModel
 import com.example.moneymind.ViewModels.TransactionLogViewModel
-import com.example.moneymind.data.GraphScreenState
-import com.example.moneymind.data.TransactionCategoriesState
-import com.example.moneymind.data.TransactionLogsState
 import com.example.moneymind.ui.*
-import com.example.moneymind.ui.Extras.getSerializable
 import com.example.moneymind.ui.theme.CSProjectTheme
 import com.example.moneymind.ui.theme.DarkLibreOfficeBlue
 
@@ -152,7 +147,8 @@ fun CustomAppBar(
 
                 DropdownMenu(
                     expanded = showMenu,
-                    onDismissRequest = { showMenu = false }
+                    onDismissRequest = { showMenu = false },
+                    modifier = Modifier.background(color = MaterialTheme.colors.surface)
                 ) {
                     MyDropdownMenuItems(navController = navController)
                 }
@@ -168,14 +164,27 @@ fun CustomAppBar(
 
 @Composable
 fun MyDropdownMenuItems( navController: NavHostController ){
-    DropdownMenuItem(onClick = { navController.navigate(AppScreen.OperatingInstructionsMenu.name) }) {
-        Text(text = "Operating Instructions")
+    Column(modifier = Modifier.background(color = Color.Transparent)) {
+        DropdownMenuItem(onClick = { navController.navigate(AppScreen.OperatingInstructionsMenu.name) }) {
+            Text(text = "Operating Instructions")
+        }
+
+        Spacer(modifier = Modifier.height(2.dp))
+        Divider(
+            color = DarkLibreOfficeBlue,
+            modifier = Modifier
+                .fillMaxWidth()  //fill the max height
+                .height(2.dp)
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+
+        DropdownMenuItem(onClick = {
+            navController.navigate(AppScreen.Settings.name)
+        }) {
+            Text(text = "Settings")
+        }
     }
-    DropdownMenuItem(onClick = {
-        navController.navigate(AppScreen.Settings.name)
-    }) {
-        Text(text = "Settings")
-    }
+
 
 }
 
@@ -198,20 +207,7 @@ fun MainApp(
     val context = LocalContext.current
 
 
-    transactionCategoriesViewModel.changeTransactionCategoriesState(
-        context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE)
-            .getSerializable("categoriesJSON", TransactionCategoriesState::class.java)
-    )
-
-    transactionLogsViewModel.changeTransactionLogsState(
-        context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE)
-            .getSerializable("transactionsJSON", TransactionLogsState::class.java)
-    )
-
-    graphScreenViewModel.setGraphScreenState(
-        context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE)
-            .getSerializable("gssJSON", GraphScreenState::class.java)
-    )
+    //Log.d("um","")
 
     Scaffold { innerPadding ->
         val helpScreenState by helpScreenViewModel.uiState.collectAsState()
@@ -353,7 +349,8 @@ fun MainApp(
 
                                         DropdownMenu(
                                             expanded = showMenu,
-                                            onDismissRequest = { showMenu = false }
+                                            onDismissRequest = { showMenu = false },
+                                            modifier = Modifier.background(color = MaterialTheme.colors.surface)
                                         ) {
                                             MyDropdownMenuItems(navController = navController)
                                         }
@@ -443,6 +440,7 @@ fun MainApp(
                             navController.navigate(AppScreen.OperatingInstructionsMenu.name)
                         }
                     },
+                    transactionLogViewModel = transactionLogsViewModel
                 )
             }
 

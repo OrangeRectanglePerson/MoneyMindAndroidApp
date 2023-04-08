@@ -19,6 +19,8 @@ private val LightColorPalette = lightColors(
     secondaryVariant = DarkCyan,
     background = LightCyan,
 
+    surface = PaleTurquoise
+
     /* Other default colors to override
 
     surface = Color.White,

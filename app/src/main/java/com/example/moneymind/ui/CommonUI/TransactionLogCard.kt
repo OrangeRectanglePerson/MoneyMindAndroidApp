@@ -72,7 +72,7 @@ fun TransactionLogCard(
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Text(String.format("$ %.2f", transaction.amount), style = MaterialTheme.typography.body1, modifier = Modifier.fillMaxWidth())
+                Text(String.format("%s %.2f", transactionLogsState.moneyUnit, transaction.amount), style = MaterialTheme.typography.body1, modifier = Modifier.fillMaxWidth())
 
                 Spacer(modifier = Modifier.height(5.dp))
 

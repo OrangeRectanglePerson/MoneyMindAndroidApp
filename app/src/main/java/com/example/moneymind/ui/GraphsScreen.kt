@@ -197,6 +197,7 @@ fun GraphsScreen(
                                         )
                                     } else if (graphScreenState.collectAsState().value.graphType == GraphScreenViewModel.BAR_GRAPH) {
                                         val barChartData = getBarChartDataPerCategory(
+                                            moneyUnit = transactionsLogViewModel.getMoneyUnit(),
                                             transactions = transactionLogsState.collectAsState().value.transactions,
                                             categories = transactionCategoriesState.collectAsState().value.categories,
                                             filteredCategories = graphScreenState.collectAsState().value.categoryWhitelist,
@@ -214,7 +215,8 @@ fun GraphsScreen(
                                                 drawLabelEvery = 3,
                                                 labelValueFormatter = {
                                                     if (graphScreenState.value.unitType == GraphScreenViewModel.AMOUNT_OF_MONEY) String.format(
-                                                        "$%.2f",
+                                                        "%s%.2f",
+                                                        transactionsLogViewModel.getMoneyUnit(),
                                                         it
                                                     )
                                                     else String.format("%.1f%%", it)
@@ -280,7 +282,7 @@ fun GraphsScreen(
                                     for(t in transactions){
                                         if (t.categories.contains(category)) totalMoneyLoggedUnderCategory += t.amount
                                     }
-                                    text.append(String.format(" | $%.2f", totalMoneyLoggedUnderCategory))
+                                    text.append(String.format(" | %s%.2f", transactionsLogViewModel.getMoneyUnit(), totalMoneyLoggedUnderCategory))
                                 }
                             }
                             if(
@@ -339,6 +341,7 @@ fun GraphsScreen(
 
 
 fun getBarChartDataPerCategory(
+    moneyUnit : String,
     transactions : List<TransactionLog>,
     categories : List<TransactionCategory>,
     filteredCategories : List<TransactionCategory> = ArrayList(),
@@ -415,7 +418,7 @@ fun getBarChartDataPerCategory(
                         value = totalMoneyLoggedUnderCategory.toFloat(),
                         color = c.color,
                         label = String.format(
-                            "$%.2f",
+                            "%s%.2f", moneyUnit,
                             totalMoneyLoggedUnderCategory
                         )
                     )

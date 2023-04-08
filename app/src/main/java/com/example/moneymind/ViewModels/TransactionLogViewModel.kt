@@ -103,5 +103,16 @@ class TransactionLogViewModel() : ViewModel()  {
         }
     }
 
+    fun setMoneyUnit(newUnit : String){
+        _uiState.update {
+            it.copy(moneyUnit = newUnit)
+        }
+    }
+
+    fun getMoneyUnit() : String{
+        return _uiState.value.moneyUnit
+    }
+
+
 
 }
