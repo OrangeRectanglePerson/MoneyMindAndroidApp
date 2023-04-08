@@ -90,9 +90,12 @@ fun customTitleAppBar(
 
 @Composable
 fun CustomAppBar(
+    navController: NavHostController,
     backClick : () -> Unit,
     ellipsesClick : () -> Unit,
 ){
+    var showMenu by remember { mutableStateOf(false) }
+
     Column() {
         Row(
             modifier = Modifier
@@ -127,7 +130,7 @@ fun CustomAppBar(
             ) {
 
                 TextButton(
-                    onClick = ellipsesClick,
+                    onClick = { showMenu = !showMenu },
                     modifier = Modifier
                         .wrapContentWidth(Alignment.CenterHorizontally)
                         .background(
@@ -145,6 +148,15 @@ fun CustomAppBar(
                         style = MaterialTheme.typography.button,
                         textAlign = TextAlign.Center
                     )
+                }
+
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false }
+                ) {
+                    DropdownMenuItem(onClick = { navController.navigate(AppScreen.OperatingInstructionsMenu.name) }) {
+                        Text(text = "Operating Instructions")
+                    }
                 }
             }
         }
@@ -212,6 +224,9 @@ fun MainApp(
             composable(route = AppScreen.GeneralTransactionView.name) {
                 GeneralTransactionViewScreen(
                     _topBar = {
+
+                        var showMenu by remember { mutableStateOf(false) }
+
                         Column() {
                             Column (
                                 modifier = Modifier
@@ -303,25 +318,42 @@ fun MainApp(
                                     
                                     Spacer(modifier = Modifier.width(10.dp))
 
-                                    TextButton(
-                                        onClick = { },
-                                        modifier = Modifier
-                                            .width(((context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density - 3 * 10) * (1.0 / 4.0)).dp)
-                                            .background(
-                                                color = MaterialTheme.colors.primary,
-                                                shape = RoundedCornerShape(30)
+                                    Row() {
+                                        TextButton(
+                                            onClick = { showMenu = !showMenu },
+                                            modifier = Modifier
+                                                .width(((context.resources.displayMetrics.widthPixels / context.resources.displayMetrics.density - 3 * 10) * (1.0 / 4.0)).dp)
+                                                .background(
+                                                    color = MaterialTheme.colors.primary,
+                                                    shape = RoundedCornerShape(30)
+                                                )
+                                                .border(
+                                                    width = 3.dp,
+                                                    color = MaterialTheme.colors.primaryVariant,
+                                                    shape = RoundedCornerShape(30)
+                                                ),
+                                        ) {
+                                            Text(
+                                                "...",
+                                                style = MaterialTheme.typography.button,
+                                                textAlign = TextAlign.Center
                                             )
-                                            .border(
-                                                width = 3.dp,
-                                                color = MaterialTheme.colors.primaryVariant,
-                                                shape = RoundedCornerShape(30)
-                                            ),
-                                    ){
-                                        Text("...", style = MaterialTheme.typography.button, textAlign = TextAlign.Center)
+                                        }
+
+                                        DropdownMenu(
+                                            expanded = showMenu,
+                                            onDismissRequest = { showMenu = false }
+                                        ) {
+                                            DropdownMenuItem(onClick = {
+                                                navController.navigate(
+                                                    AppScreen.OperatingInstructionsMenu.name
+                                                )
+                                            }) {
+                                                Text(text = "Operating Instructions")
+                                            }
+                                        }
                                     }
                                 }
-
-
                             }
 
                             Divider(
@@ -345,7 +377,8 @@ fun MainApp(
                                     navController.navigate(AppScreen.GeneralTransactionView.name)
                                 }
                             },
-                            ellipsesClick = {}
+                            ellipsesClick = {},
+                            navController = navController
                         )
                     },
                     transactionsLogViewModel = transactionLogsViewModel,
@@ -419,10 +452,8 @@ fun MainApp(
                                     navController.navigate(AppScreen.GeneralTransactionView.name)
                                 }
                             },
-                            ellipsesClick = {
-
-
-                            }
+                            ellipsesClick = {},
+                            navController = navController
                         )
                     },
                     _gotoCategoriesScreen = {navController.navigate(AppScreen.CategoriesScreen.name)},
@@ -442,7 +473,8 @@ fun MainApp(
                                     navController.navigate(AppScreen.GeneralTransactionView.name)
                                 }
                             },
-                            ellipsesClick = {}
+                            ellipsesClick = {},
+                            navController = navController
                         )
                     },
                     transactionsLogViewModel = transactionLogsViewModel,

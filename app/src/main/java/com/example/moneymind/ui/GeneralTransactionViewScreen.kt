@@ -1,6 +1,7 @@
 package com.example.moneymind.ui
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -105,6 +106,9 @@ fun GeneralTransactionViewScreen(
                                     "transactionsJSON",
                                     transactionLogsState.value
                                 ).apply()
+
+                            //toast to fulfill project requirements
+                            Toast.makeText(context,"New Transaction Created!", Toast.LENGTH_SHORT).show()
 
                             showTransactionCreationDialog = false
                         }

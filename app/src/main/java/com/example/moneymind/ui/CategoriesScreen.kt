@@ -3,6 +3,7 @@ package com.example.moneymind.ui
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,7 +21,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.moneymind.NavHostMainActivity
 import com.example.moneymind.R
 import com.example.moneymind.ViewModels.TransactionCategoryViewModel
 import com.example.moneymind.ViewModels.TransactionLogViewModel
@@ -175,6 +179,9 @@ fun CategoriesScreen(
                                     transactionLogsState.value
                                 ).apply()
 
+                            //toast to fulfill project requirements
+                            Toast.makeText(context,"New Transaction Created!",Toast.LENGTH_SHORT).show()
+
                             showTransactionCreationDialog = false
                         }
                     )
@@ -205,6 +212,22 @@ fun CategoriesScreen(
                                     "categoriesJSON",
                                     transactionCategoriesState.value
                                 ).apply()
+
+                            val notifBuilder = NotificationCompat.Builder(context, NavHostMainActivity.CHANNEL_ID)
+                                .setSmallIcon(android.R.drawable.ic_menu_edit)
+                                .setContentTitle("Category Created!")
+                                .setContentText(
+                                    String.format("Category \"%s\" was created.", name)
+                                )
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                // Set the intent that will fire when the user taps the notification
+                                //.setContentIntent(pendingIntent)
+                                .setAutoCancel(true)
+
+                            with(NotificationManagerCompat.from(context)) {
+                                // notificationId is a unique int for each notification that you must define
+                                notify(NavHostMainActivity.notification_ID++, notifBuilder.build())
+                            }
 
                             //Log.d("json1", context.getSharedPreferences("MoneyMindApp", Context.MODE_PRIVATE).getString(s))
                             //Log.d("json2", Json.encodeToString(TransactionCategoriesStateSerializer,transactionCategoriesState.value))
