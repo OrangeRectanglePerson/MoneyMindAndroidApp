@@ -19,7 +19,7 @@ import com.example.moneymind.ui.theme.CSProjectTheme
 import com.example.moneymind.ui.theme.MediumTurquoise
 
 @Composable
-fun OperatingInstructionsScreen(
+fun SettingsScreen(
     _topBar : @Composable () -> Unit,
     gotoPreviousScreenAction : () -> Unit,
     helpOption : String,
@@ -65,7 +65,7 @@ fun OperatingInstructionsScreen(
 
                         Spacer(modifier = Modifier.height(30.dp))
 
-                        Text("Help Text for $helpOption", style = MaterialTheme.typography.body1)
+                        Text("Stuff for $helpOption", style = MaterialTheme.typography.body1)
 
                     }
                 }

@@ -40,7 +40,7 @@ enum class AppScreen(val title: String) {
     GeneralTransactionView(title = "Transaction List"),
     TransactionLogsScreen(title = "Transaction List 2"),
     OperatingInstructionsMenu(title = "Help"),
-    OperatingInstructions(title = "Operating Instructions"),
+    Settings(title = "Operating Instructions"),
     CategoriesScreen(title = "Categories List"),
     GraphingScreen(title = "Transaction Graphs"),
 }
@@ -154,9 +154,7 @@ fun CustomAppBar(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false }
                 ) {
-                    DropdownMenuItem(onClick = { navController.navigate(AppScreen.OperatingInstructionsMenu.name) }) {
-                        Text(text = "Operating Instructions")
-                    }
+                    MyDropdownMenuItems(navController = navController)
                 }
             }
         }
@@ -166,6 +164,19 @@ fun CustomAppBar(
             modifier = Modifier.height(3.dp)
         )
     }
+}
+
+@Composable
+fun MyDropdownMenuItems( navController: NavHostController ){
+    DropdownMenuItem(onClick = { navController.navigate(AppScreen.OperatingInstructionsMenu.name) }) {
+        Text(text = "Operating Instructions")
+    }
+    DropdownMenuItem(onClick = {
+        navController.navigate(AppScreen.Settings.name)
+    }) {
+        Text(text = "Settings")
+    }
+
 }
 
 @Composable
@@ -344,13 +355,7 @@ fun MainApp(
                                             expanded = showMenu,
                                             onDismissRequest = { showMenu = false }
                                         ) {
-                                            DropdownMenuItem(onClick = {
-                                                navController.navigate(
-                                                    AppScreen.OperatingInstructionsMenu.name
-                                                )
-                                            }) {
-                                                Text(text = "Operating Instructions")
-                                            }
+                                            MyDropdownMenuItems(navController = navController)
                                         }
                                     }
                                 }
@@ -410,7 +415,7 @@ fun MainApp(
                         context.startActivity(intent)
                     },
                     gotoSettingsButtonAction = {
-                        navController.navigate(AppScreen.OperatingInstructions.name)
+                        navController.navigate(AppScreen.Settings.name)
                         helpScreenViewModel.setHelpScreenOption("Settings")
                     },
                     gotoStartScreenButtonAction = {
@@ -419,12 +424,12 @@ fun MainApp(
                     },
                 )
             }
-            composable(route = AppScreen.OperatingInstructions.name) {
-                OperatingInstructionsScreen(
-                    helpOption = helpScreenState.helpOption,
+            composable(route = AppScreen.Settings.name) {
+                SettingsScreen(
+                    helpOption = "Settings",
                     _topBar = {
                         customTitleAppBar(
-                            title = helpScreenState.helpOption,
+                            title = "Settings",
                             currentScreen = currentScreen,
                             canNavigateBack = navController.previousBackStackEntry != null,
                             navigateUp = { navController.navigateUp() }
