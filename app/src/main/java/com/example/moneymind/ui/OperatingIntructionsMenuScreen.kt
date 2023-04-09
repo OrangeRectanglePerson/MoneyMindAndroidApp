@@ -85,6 +85,11 @@ fun OperatingInstructionsMenuScreen(
 
                         Spacer(modifier = Modifier.height(30.dp))
 
+                        Text("If you are having trouble opening the instruction manuals, either sign in to or disable your Google Drive app.",
+                            style = MaterialTheme.typography.subtitle1, textAlign = TextAlign.Center)
+
+                        Spacer(modifier = Modifier.height(30.dp))
+
                         TextButton(
                             onClick = gotoStartScreenButtonAction,
                             modifier = Modifier
