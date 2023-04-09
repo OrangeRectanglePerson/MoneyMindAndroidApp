@@ -239,7 +239,7 @@ fun EditTransactionDialog(
                             enabled = isValidDouble && !listOfUsedTransactionNames.contains(transactionName),
                         ) {
                             Text(
-                                "Edit Transaction",
+                                "Confirm",
                                 style = MaterialTheme.typography.button,
                                 color = Color.Black,
                                 modifier = Modifier

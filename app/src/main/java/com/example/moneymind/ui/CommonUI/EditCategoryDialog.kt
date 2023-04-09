@@ -80,7 +80,7 @@ fun EditCategoryDialog(
                         val focusManager = LocalFocusManager.current
 
                         Text(
-                            text = "Edit Category",
+                            text = "Confirm",
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .padding(top = 5.dp)

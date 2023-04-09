@@ -301,6 +301,15 @@ fun GraphsScreen(
                             )
                         }
 
+                        item{
+                            var totalAmtLogged = 0.0
+                            for(t in transactionsLogViewModel.getTransactions()) totalAmtLogged += t.amount
+                            Text(
+                                text = String.format("Total amount of money logged: %s%.2f", transactionsLogViewModel.getMoneyUnit(), totalAmtLogged),
+                                style = MaterialTheme.typography.subtitle1
+                            )
+                        }
+
 
                     }
                 }

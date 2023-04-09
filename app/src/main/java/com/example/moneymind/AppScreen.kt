@@ -260,7 +260,7 @@ fun MainApp(
                                             ),
                                     ) {
                                         Text(
-                                            "Transaction Logs",
+                                            "Transaction Logs & Categories",
                                             style = MaterialTheme.typography.button,
                                             textAlign = TextAlign.Center
                                         )

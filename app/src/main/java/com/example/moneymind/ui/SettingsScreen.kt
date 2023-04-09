@@ -97,6 +97,18 @@ fun SettingsScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
 
+                        Spacer(modifier = Modifier.height(30.dp))
+
+                        Text(
+                            text = "Greetings from The Developer!\n"+
+                                    "This app was created by Devon Lim in 2023 as part of NUS High School of Math and Science's Year 4 CS Curriculum.\n" +
+                                    "Hope you find this app to be useful!\n\n" +
+                                    "The FontStruction \"Pokémon DP Pro\" (https://fontstruct.com/fontstructions/show/404271) by “crystalwalrein” is licensed under a Creative Commons Attribution Share Alike license (http://creativecommons.org/licenses/by-sa/3.0/).",
+                            style = MaterialTheme.typography.subtitle1,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
                     }
                 }
             }
