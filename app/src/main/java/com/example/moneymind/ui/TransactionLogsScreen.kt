@@ -521,7 +521,7 @@ fun ChooseSortingDialog(
                             .padding(5.dp),
                     ) {
                         Text(
-                            "Confirm Selection",
+                            "Sort Transactions",
                             style = MaterialTheme.typography.button,
                             color = Color.Black,
                             modifier = Modifier
