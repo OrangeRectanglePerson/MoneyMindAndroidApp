@@ -144,7 +144,11 @@ fun LogTransactionDialog(
                                     transactionAmountText = it
                                     transactionAmount = it.toDouble()
                                     isValidDouble = true
-                                } catch (_ : NumberFormatException ){
+                                } catch (_: NumberFormatException) {
+                                    isValidDouble = false
+                                }
+
+                                if(transactionAmount.isInfinite() || transactionAmount.isNaN()){
                                     isValidDouble = false
                                 }
                             },

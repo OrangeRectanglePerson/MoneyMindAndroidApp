@@ -154,6 +154,9 @@ fun EditTransactionDialog(
                                 } catch (_ : NumberFormatException ){
                                     isValidDouble = false
                                 }
+                                if(transactionAmount.isInfinite() || transactionAmount.isNaN()){
+                                    isValidDouble = false
+                                }
                             },
                             label = { Text(text = "Transaction Amount", style = MaterialTheme.typography.subtitle1) },
                             keyboardActions = KeyboardActions(
