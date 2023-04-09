@@ -21,6 +21,12 @@ val Typography = Typography(
     body1 = TextStyle(
         fontWeight = FontWeight.Normal,
         fontSize = 34.sp,
+        //color = Color.Black,
+        textAlign = TextAlign.Center,
+    ),
+    body2 = TextStyle(
+        fontWeight = FontWeight.Normal,
+        fontSize = 34.sp,
         color = Color.Black,
         textAlign = TextAlign.Center,
     ),

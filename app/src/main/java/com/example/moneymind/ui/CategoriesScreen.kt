@@ -278,7 +278,7 @@ fun TransactionCategoryCard(
             ) {
                 Text(
                     text = category.name,
-                    style = MaterialTheme.typography.body1,
+                    style = MaterialTheme.typography.body2,
                     modifier = Modifier.fillMaxWidth(),
                     color = category.color
                 )
@@ -287,7 +287,7 @@ fun TransactionCategoryCard(
 
                 Text(
                     text = String.format("%d Items", numTransactionWithCategory),
-                    style = MaterialTheme.typography.body1,
+                    style = MaterialTheme.typography.button,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

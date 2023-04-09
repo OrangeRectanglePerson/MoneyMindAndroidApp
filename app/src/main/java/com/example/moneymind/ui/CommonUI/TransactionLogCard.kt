@@ -63,16 +63,16 @@ fun TransactionLogCard(
                     .wrapContentSize(Alignment.Center)
                     .padding(10.dp),
             ) {
-                Text(transaction.name, style = MaterialTheme.typography.body1, modifier = Modifier.fillMaxWidth())
+                Text(transaction.name, style = MaterialTheme.typography.body2, modifier = Modifier.fillMaxWidth())
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 val SDF = SimpleDateFormat("yyyy.MM.dd 'at' HH:mm:ss z", Locale.getDefault())
-                Text(SDF.format(transaction.date.time), style = MaterialTheme.typography.body1, modifier = Modifier.fillMaxWidth())
+                Text(SDF.format(transaction.date.time), style = MaterialTheme.typography.body2, modifier = Modifier.fillMaxWidth())
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                Text(String.format("%s %.2f", transactionLogsState.moneyUnit, transaction.amount), style = MaterialTheme.typography.body1, modifier = Modifier.fillMaxWidth())
+                Text(String.format("%s %.2f", transactionLogsState.moneyUnit, transaction.amount), style = MaterialTheme.typography.body2, modifier = Modifier.fillMaxWidth())
 
                 Spacer(modifier = Modifier.height(5.dp))
 
@@ -86,7 +86,8 @@ fun TransactionLogCard(
                         }
 
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.body2
                 )
             }
 
