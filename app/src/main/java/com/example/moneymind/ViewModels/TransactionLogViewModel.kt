@@ -113,6 +113,10 @@ class TransactionLogViewModel() : ViewModel()  {
         return _uiState.value.moneyUnit
     }
 
+    fun sortTransaction(comparator : Comparator<TransactionLog>){
+        _uiState.value.transactions.sortWith(comparator)
+    }
+
 
 
 }

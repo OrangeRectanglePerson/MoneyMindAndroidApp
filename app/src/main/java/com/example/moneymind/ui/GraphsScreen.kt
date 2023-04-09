@@ -196,7 +196,7 @@ fun GraphsScreen(
                                                 .align(Alignment.Center),
                                         )
                                     } else if (graphScreenState.collectAsState().value.graphType == GraphScreenViewModel.BAR_GRAPH) {
-                                        val barChartData = getBarChartDataPerCategory(
+                                        val barChartData = getBarChartData(
                                             moneyUnit = transactionsLogViewModel.getMoneyUnit(),
                                             transactions = transactionLogsState.collectAsState().value.transactions,
                                             categories = transactionCategoriesState.collectAsState().value.categories,
@@ -340,7 +340,7 @@ fun GraphsScreen(
 }
 
 
-fun getBarChartDataPerCategory(
+fun getBarChartData(
     moneyUnit : String,
     transactions : List<TransactionLog>,
     categories : List<TransactionCategory>,
