@@ -80,7 +80,7 @@ fun EditCategoryDialog(
                         val focusManager = LocalFocusManager.current
 
                         Text(
-                            text = "Confirm",
+                            text = "Edit Category",
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .padding(top = 5.dp)
@@ -174,7 +174,7 @@ fun EditCategoryDialog(
                             enabled = !isCategoryNameTaken
                         ) {
                             Text(
-                                "Edit Category",
+                                "Confirm",
                                 style = MaterialTheme.typography.button,
                                 color = Color.Black,
                                 modifier = Modifier
