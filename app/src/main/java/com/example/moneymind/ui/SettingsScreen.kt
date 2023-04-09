@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.sp
 import com.example.moneymind.ViewModels.TransactionLogViewModel
 import com.example.moneymind.ui.Extras.putSerializable
 import com.example.moneymind.ui.theme.CSProjectTheme
-import com.example.moneymind.ui.theme.MediumTurquoise
 
 @Composable
 fun SettingsScreen(
@@ -47,7 +46,7 @@ fun SettingsScreen(
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MediumTurquoise
+                    color = MaterialTheme.colors.secondary
                 ) {
                     Column(
                         modifier = Modifier
